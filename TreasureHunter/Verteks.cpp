@@ -42,17 +42,16 @@ int Verteks::getX() {
 	return x;
 }
 
-void Verteks::setX(int x) {
+void Verteks::set(float x, float y){
 	this->x = x;
+	this->y = y;
+	bound = sf::FloatRect(x, y, Verteks::VERTEKS_RADIUS*2, Verteks::VERTEKS_RADIUS*2);
 }
 
 int Verteks::getY() {
 	return y;
 }
 
-void Verteks::setY(int y) {
-	this->y = y;
-}
 
 int Verteks::count = 0;
 int Verteks::nRed = 0;

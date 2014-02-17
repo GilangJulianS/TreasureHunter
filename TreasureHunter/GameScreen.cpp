@@ -44,7 +44,7 @@ void GameScreen::update(RenderWindow& renderWindow, World world){
 	Sprite player(character);
 	player.scale(0.175f, 0.175f);
 	player.setPosition(world.player.x, world.player.y);
-	CircleShape circle(GameScreen::CIRCLE_RADIUS);
+	CircleShape circle(Verteks::VERTEKS_RADIUS);
 	std::vector<Verteks> vertices;
 	std::vector<Peti> peti;
 	Verteks v;
@@ -53,7 +53,7 @@ void GameScreen::update(RenderWindow& renderWindow, World world){
 	// get position 
 	for(int i=0;i<world.nVerteks;i++){
 		v = vertices[i];
-		Vector2f f2((float)(v.getX() + GameScreen::CIRCLE_RADIUS), (float)(v.getY() + GameScreen::CIRCLE_RADIUS));
+		Vector2f f2((float)(v.getX() + Verteks::VERTEKS_RADIUS), (float)(v.getY() + Verteks::VERTEKS_RADIUS));
 		positions[i] = f2;
 	}
 	renderWindow.clear();

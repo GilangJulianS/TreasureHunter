@@ -25,8 +25,6 @@ public:
 
 	void update(int elapsedTime);
 
-	bool Cek(Verteks v, Verteks v2,Player player);
-
 	std::vector<Verteks> getVertices();
 
 	std::vector<Peti> getPeti();

@@ -2,6 +2,7 @@
 class Verteks {
 
 public:
+	static const int VERTEKS_RADIUS = 25;
 	static const int STATE_DEFAULT = 0;
 	static const int STATE_ACTIVATED = 1;
 	static const int STATE_TAKEN = 2;
@@ -18,6 +19,7 @@ public:
 	int time;
 	int state;
 	int *lengths;
+	sf::FloatRect bound;
 	
 	Verteks();
 
@@ -31,12 +33,13 @@ public:
 
 	int getX();
 
-	void setX(int x);
-
 	int getY();
 
-	void setY(int y);
+	void set(float x, float y);
+	
+
 
 private:
-	int x, y,num;
+	int num;
+	float x, y;
 };

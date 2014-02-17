@@ -4,15 +4,19 @@
 class Player {
 
 public:
+	static const int DEFAULT_HEIGHT = 40;
+	static const int DEFAULT_WIDTH = 40;
 	int curVerteks, destVerteks;
 	int nVisitedVertices;
 	int coins;
-	
+	sf::FloatRect bound;
 	// constructor
 	Player();
 	
-	void update(int time);
+	void move(float x, float y);
 
-	int x, y;
+	void set(float x, float y);
+
+	float x, y;
 
 };

@@ -72,8 +72,7 @@ void World::initialize(){
 				}
 			}
 		}while(!avail);
-		v.setX(randX);
-		v.setY(randY);
+		v.set(randX, randY);
 		for(int j=0;j<nVerteks;j++){
 			cin >> v.lengths[j];
 		}
@@ -99,7 +98,7 @@ void World::initialize(){
 
 void World::update(int elapsedTime){
 	deltaTime += elapsedTime;
-	float travel;
+	float travelX = 0, travelY = 0;
 
 	if(deltaTime >= 100){
 		
@@ -112,13 +111,12 @@ void World::update(int elapsedTime){
 		/*if(player.x == verteks[player.destVerteks].getX() && player.y == verteks[player.destVerteks].getY()){
 			i++;
 		}*/
-		cout << jalan << endl;
-		if ((verteks[player.destVerteks].getX() < verteks[player.curVerteks].getX() && (verteks[player.destVerteks].getX() - player.x > 0)) ||
+		//cout << jalan << endl;
+		/*if ((verteks[player.destVerteks].getX() < verteks[player.curVerteks].getX() && (verteks[player.destVerteks].getX() - player.x > 0)) ||
 			(verteks[player.destVerteks].getX() > verteks[player.curVerteks].getX() && (verteks[player.destVerteks].getX() - player.x < 0)) 
-			){
-			player.x = verteks[player.destVerteks].getX();
-			player.y = verteks[player.destVerteks].getY();
-			cout <<"masukkkk" << endl << endl;
+			){*/
+		if(verteks[player.destVerteks].bound.intersects(player.bound)){
+			player.set(verteks[player.destVerteks].getX(), verteks[player.destVerteks].getY());
 			if(verteks[player.destVerteks].getType() == verteks[player.destVerteks].CONTAIN_GREEN){
 				sleep(milliseconds(500));
 			}
@@ -131,37 +129,20 @@ void World::update(int elapsedTime){
 			jalan++;
 			//player.curVerteks = verteks[solution[jalan-1]].getNum() - 1;
 		}
-		if ( verteks[player.curVerteks].getX() < verteks[player.destVerteks].getX()){
-			travel = (verteks[player.destVerteks].getX() - verteks[player.curVerteks].getX()) / verteks[player.curVerteks].lengths[player.destVerteks] / 5;
-			player.x += travel;
-		}
-		else if(verteks[player.curVerteks].getX() > verteks[player.destVerteks].getX()){
-			travel = (verteks[player.curVerteks].getX() - verteks[player.destVerteks].getX()) / verteks[player.curVerteks].lengths[player.destVerteks] / 5;
-			player.x -= travel;
-		}
-		if ( verteks[player.curVerteks].getY() < verteks[player.destVerteks].getY()){
-			travel = (verteks[player.destVerteks].getY() - verteks[player.curVerteks].getY()) / verteks[player.curVerteks].lengths[player.destVerteks] / 5;
-			player.y += travel;
-		}
-		else if(verteks[player.curVerteks].getY() > verteks[player.destVerteks].getY()){
-			travel = (verteks[player.curVerteks].getY() - verteks[player.destVerteks].getY()) / verteks[player.curVerteks].lengths[player.destVerteks] / 5;
-			player.y -= travel;
-		}
+		cout << "Cur" << verteks[player.curVerteks].bound.left << " " << verteks[player.curVerteks].bound.top << endl;
+		cout << "Dest" << verteks[player.destVerteks].bound.left << " " << verteks[player.destVerteks].bound.top << endl;
+		cout << "Player" << player.bound.left << " " << player.bound.top << endl << endl;
+		travelX = ((verteks[player.destVerteks].getX() - verteks[player.curVerteks].getX()) / verteks[player.curVerteks].lengths[player.destVerteks]) / 5;
+		travelY = ((verteks[player.destVerteks].getY() - verteks[player.curVerteks].getY()) / verteks[player.curVerteks].lengths[player.destVerteks]) / 5;
+		player.move(travelX, travelY);
 		//cout<< player.x<< " " << player.y << endl;
-		cout << "jarak :" << verteks[player.curVerteks].lengths[player.destVerteks]<< endl;
-		cout<< "dest "<<verteks[player.destVerteks].getX() << " " << verteks[player.destVerteks].getY() << endl;
-		cout<< "cur " <<verteks[player.curVerteks].getX() << " " << verteks[player.curVerteks].getY() << endl;
-		cout<<"player " << player.x << " " << player.y <<endl;
+		//cout << "jarak :" << verteks[player.curVerteks].lengths[player.destVerteks]<< endl;
+		//cout<< "dest "<<verteks[player.destVerteks].getX() << " " << verteks[player.destVerteks].getY() << endl;
+		//cout<< "cur " <<verteks[player.curVerteks].getX() << " " << verteks[player.curVerteks].getY() << endl;
+		//cout<<"player " << player.x << " " << player.y <<endl;
 	}
 }
 
-bool World::Cek(Verteks v1, Verteks v2, Player player){
-	bool Near = false;
-	if (true){
-	
-	}
-	return Near;
-}
 
 void World::solve(){
 	int j, point;
@@ -245,5 +226,5 @@ vector<Peti> World::getPeti(){
 }
 
 void World::generatePos(){
-
+	
 }
