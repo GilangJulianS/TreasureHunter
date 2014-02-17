@@ -8,6 +8,7 @@
 
 GameScreen gameScreen;
 World world;
+bool finishState = false;
 
 void Game::start(){
 	if(gameState != UNINITIALIZED)
@@ -22,8 +23,10 @@ void Game::start(){
 
 
 	sf::Thread thread1(&Game::run);
+	sf::Thread thread2(&Game::input);
 	//Game::run();
 	thread1.launch();
+	thread2.launch();
 	world.solve();
 	
 
@@ -31,8 +34,11 @@ void Game::start(){
 	/*while(!isExiting()){
 		gameLoop();
 	}*/
-	//thread1.wait();
-	//mainWindow.close();
+	while(!finishState){
+	}
+	thread1.wait();
+	thread2.wait();
+	mainWindow.close();
 }
 
 bool Game::isExiting(){
@@ -58,9 +64,10 @@ void Game::gameLoop(){
 
 void Game::run(){
 	ContextSettings settings;
-	bool finishState = false;
+	
 	settings.antialiasingLevel = 8;
 	mainWindow.create(VideoMode(1024,600,32),"TreasureHunter", Style::Default ,settings);
+	gameScreen.init(world);
 	sf::Clock clock;
 	while(!finishState){
 		sf::Time elapsedTime = clock.restart();
@@ -72,6 +79,17 @@ void Game::run(){
 			finishState = true;
 		}
 		sleep(milliseconds(17));
+	}
+}
+
+void Game::input(){
+	Event event;
+	while(!finishState){
+		while(mainWindow.pollEvent(event)){
+			if(event.type == Event::EventType::MouseButtonPressed){
+				return;
+			}
+		}
 	}
 }
 

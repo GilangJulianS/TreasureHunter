@@ -6,18 +6,47 @@
 
 using namespace sf;
 
-void GameScreen::update(RenderWindow& renderWindow, World world){
-	Texture texture;
-	Texture character;
-	sf::Vector2f *positions;
-	sf::Font font;
-	font.loadFromFile("comic.ttf");
-	sf::Text text("",font);
-	
-	text.setCharacterSize(20);
+Sprite sprite;
+Sprite player;
+Texture texture;
+Texture character;
+CircleShape circle;
+sf::Font font;
+sf::Text text;
+std::string str;
+
+void GameScreen::init(World world){
+	vertices = world.getVertices();
+	peti = world.getPeti();
 	positions = new Vector2f[world.nVerteks];
+	// get position 
+	for(int i=0;i<world.nVerteks;i++){
+		v = vertices[i];
+		Vector2f f2((float)(v.getX() + Verteks::VERTEKS_RADIUS), (float)(v.getY() + Verteks::VERTEKS_RADIUS));
+		positions[i] = f2;
+	}
+	if(texture.loadFromFile("Bitmap/Box.png")!=true){
+		std::cout << "Image file Box.png failed to load" << std::endl;
+		return;
+	}
+	if(character.loadFromFile("Bitmap/char.png")!=true){
+		std::cout << "Image file char.png failed to load" << std::endl;
+		return;
+	}
+	sprite = Sprite(texture);
+	sprite.scale(0.05f, 0.05f);
+	player = Sprite(character);
+	player.scale(0.175f, 0.175f);
+	circle = CircleShape(Verteks::VERTEKS_RADIUS);
+	font.loadFromFile("comic.ttf");
+	text  = Text("",font);
+	text.setCharacterSize(20);
+}
+
+
+void GameScreen::update(RenderWindow& renderWindow, World world){
 	// Draw Grid
-	for(int i=1; i<21; i++){
+	/*for(int i=1; i<21; i++){
 		Vertex line[] = {
 			Vertex(Vector2f(50*i, 0)),
 			Vertex(Vector2f(50*i, 600))
@@ -30,32 +59,7 @@ void GameScreen::update(RenderWindow& renderWindow, World world){
 			Vertex(Vector2f(1024, 50*i))
 		};
 		renderWindow.draw(line, 2, Lines);
-	}
-	if(texture.loadFromFile("Bitmap/Box.png")!=true){
-		std::cout << "Image file Box.png failed to load" << std::endl;
-		return;
-	}
-	if(character.loadFromFile("Bitmap/char.png")!=true){
-		std::cout << "Image file char.png failed to load" << std::endl;
-		return;
-	}
-	Sprite sprite(texture);
-	sprite.scale(0.05f, 0.05f);
-	Sprite player(character);
-	player.scale(0.175f, 0.175f);
-	player.setPosition(world.player.x, world.player.y);
-	CircleShape circle(Verteks::VERTEKS_RADIUS);
-	std::vector<Verteks> vertices;
-	std::vector<Peti> peti;
-	Verteks v;
-	vertices = world.getVertices();
-	peti = world.getPeti();
-	// get position 
-	for(int i=0;i<world.nVerteks;i++){
-		v = vertices[i];
-		Vector2f f2((float)(v.getX() + Verteks::VERTEKS_RADIUS), (float)(v.getY() + Verteks::VERTEKS_RADIUS));
-		positions[i] = f2;
-	}
+	}*/
 	renderWindow.clear();
 	// draw lines between vertices
 	for(int i=0; i<world.nVerteks;i++){
@@ -93,33 +97,21 @@ void GameScreen::update(RenderWindow& renderWindow, World world){
 	}
 	// draw text
 	int length;
-	Vector2f pos;
 	for(int i=0; i<world.nVerteks-1;i++){
 		for(int j=i+1;j<world.nVerteks;j++){
 			length = vertices[i].lengths[j];
 			if(length != 0 && length != -99){
-				std::string str = std::to_string(length);
+				str = std::to_string(length);
 				text.setString(str);
-				pos = midPoint(positions[i], positions[j]);
-				text.setPosition(pos);
+				text.setPosition(midPoint(positions[i], positions[j]));
 				renderWindow.draw(text);
 			}
 		}
 	}
+	player.setPosition(world.player.bound.left, world.player.bound.top);
 	renderWindow.draw(player);
 	renderWindow.display();
 
-	
-	
-
-	/*Event event;
-	while(true){
-		while(renderWindow.pollEvent(event)){
-			if(event.type == Event::EventType::MouseButtonPressed){
-				return;
-			}
-		}
-	}*/
 }
 
 Vector2f GameScreen::midPoint(Vector2f v1, Vector2f v2){

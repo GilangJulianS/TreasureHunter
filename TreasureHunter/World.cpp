@@ -100,7 +100,9 @@ void World::update(int elapsedTime){
 	deltaTime += elapsedTime;
 	float travelX = 0, travelY = 0;
 
-	if(deltaTime >= 100){
+	//std::cout << "delta" << elapsedTime << endl;
+
+	if(deltaTime >= 17){
 		
 		deltaTime = 0;
 		/*for (i = 0; i <nVerteks; i++){
@@ -112,11 +114,8 @@ void World::update(int elapsedTime){
 			i++;
 		}*/
 		//cout << jalan << endl;
-		/*if ((verteks[player.destVerteks].getX() < verteks[player.curVerteks].getX() && (verteks[player.destVerteks].getX() - player.x > 0)) ||
-			(verteks[player.destVerteks].getX() > verteks[player.curVerteks].getX() && (verteks[player.destVerteks].getX() - player.x < 0)) 
-			){*/
 		if(verteks[player.destVerteks].bound.intersects(player.bound)){
-			player.set(verteks[player.destVerteks].getX(), verteks[player.destVerteks].getY());
+			player.set(verteks[player.destVerteks].bound.left, verteks[player.destVerteks].bound.top);
 			if(verteks[player.destVerteks].getType() == verteks[player.destVerteks].CONTAIN_GREEN){
 				sleep(milliseconds(500));
 			}
@@ -129,11 +128,11 @@ void World::update(int elapsedTime){
 			jalan++;
 			//player.curVerteks = verteks[solution[jalan-1]].getNum() - 1;
 		}
-		cout << "Cur" << verteks[player.curVerteks].bound.left << " " << verteks[player.curVerteks].bound.top << endl;
-		cout << "Dest" << verteks[player.destVerteks].bound.left << " " << verteks[player.destVerteks].bound.top << endl;
-		cout << "Player" << player.bound.left << " " << player.bound.top << endl << endl;
-		travelX = ((verteks[player.destVerteks].getX() - verteks[player.curVerteks].getX()) / verteks[player.curVerteks].lengths[player.destVerteks]) / 5;
-		travelY = ((verteks[player.destVerteks].getY() - verteks[player.curVerteks].getY()) / verteks[player.curVerteks].lengths[player.destVerteks]) / 5;
+		//std::cout << "Cur" << verteks[player.curVerteks].bound.left << " " << verteks[player.curVerteks].bound.top << endl;
+		//std::cout << "Dest" << verteks[player.destVerteks].bound.left << " " << verteks[player.destVerteks].bound.top << endl;
+		//std::cout << "Player" << player.bound.left << " " << player.bound.top << endl << endl;
+		travelX = ((verteks[player.destVerteks].centerX - verteks[player.curVerteks].centerX) / verteks[player.curVerteks].lengths[player.destVerteks]) / 20;
+		travelY = ((verteks[player.destVerteks].centerY - verteks[player.curVerteks].centerY) / verteks[player.curVerteks].lengths[player.destVerteks]) / 20;
 		player.move(travelX, travelY);
 		//cout<< player.x<< " " << player.y << endl;
 		//cout << "jarak :" << verteks[player.curVerteks].lengths[player.destVerteks]<< endl;

@@ -46,6 +46,8 @@ void Verteks::set(float x, float y){
 	this->x = x;
 	this->y = y;
 	bound = sf::FloatRect(x, y, Verteks::VERTEKS_RADIUS*2, Verteks::VERTEKS_RADIUS*2);
+	centerX = x+Verteks::VERTEKS_RADIUS;
+	centerY = y+Verteks::VERTEKS_RADIUS;
 }
 
 int Verteks::getY() {

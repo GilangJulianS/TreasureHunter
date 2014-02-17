@@ -14,11 +14,11 @@ class Game{
 public:
 	static void start();
 	static void run();
-	
+	static void input();
 private:
 	static bool isExiting();
 	static void gameLoop();
-
+	
 	enum GameState { UNINITIALIZED, SPLASH, PAUSE, MENU, PLAY, EXIT};
 
 	static GameState gameState;

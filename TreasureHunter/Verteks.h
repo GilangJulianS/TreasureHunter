@@ -19,6 +19,7 @@ public:
 	int time;
 	int state;
 	int *lengths;
+	float centerX, centerY;
 	sf::FloatRect bound;
 	
 	Verteks();
