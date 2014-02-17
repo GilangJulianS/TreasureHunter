@@ -121,11 +121,14 @@ void World::update(int elapsedTime){
 			}
 			else if (verteks[player.destVerteks].getType() == verteks[player.destVerteks].CONTAIN_YELLOW){
 				sleep(milliseconds(1000));
+				player.coins++;
 			}
 			else if (verteks[player.destVerteks].getType() == verteks[player.destVerteks].CONTAIN_RED){
 				sleep(milliseconds(1500));
+				player.coins +=2;
 			}
 			jalan++;
+			cout << player.coins << endl;
 			//player.curVerteks = verteks[solution[jalan-1]].getNum() - 1;
 		}
 		//std::cout << "Cur" << verteks[player.curVerteks].bound.left << " " << verteks[player.curVerteks].bound.top << endl;
