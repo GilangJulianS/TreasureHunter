@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Game.h"
+#include "Button.h"
 #include "SplashScreen.h"
 #include "GameScreen.h"
 #include "World.h"
@@ -9,8 +10,15 @@
 GameScreen gameScreen;
 World world;
 bool finishState = false;
+bool startClicked = false;
+Event event;
+ContextSettings settings;
+	
 
-void Game::start(){
+Game::Game(){
+	bool release = true;
+	bool drag = false;
+	settings.antialiasingLevel = 8;
 	if(gameState != UNINITIALIZED)
 		return;
 	
@@ -20,13 +28,31 @@ void Game::start(){
 
 	//
 	world.initialize();
+	
+	ContextSettings settings;
+	settings.antialiasingLevel = 8;
+	mainWindow.create(VideoMode(1024,600,32),"TreasureHunter", Style::Default ,settings);
+	Button startButton(0, 0, 50, 50);
+	gameScreen.init(world);
+	
+	while(!startClicked){
+		while(mainWindow.pollEvent(event)){
+			if(startButton.bound.contains(event.mouseButton.x, event.mouseButton.y)){
+				startClicked = true;
+				mainWindow.close();
+			}
+			if(event.type == Event::Closed){
+				mainWindow.close();
+			}
+			gameScreen.update(mainWindow, world);
+			mainWindow.draw(startButton.texture);
+			mainWindow.display();
+		}
+	}
 
-
-	sf::Thread thread1(&Game::run);
-	sf::Thread thread2(&Game::input);
+	sf::Thread thread1(&Game::run, this);
 	//Game::run();
 	thread1.launch();
-	thread2.launch();
 	world.solve();
 	
 
@@ -37,7 +63,6 @@ void Game::start(){
 	while(!finishState){
 	}
 	thread1.wait();
-	thread2.wait();
 	mainWindow.close();
 }
 
@@ -63,9 +88,8 @@ void Game::gameLoop(){
 }
 
 void Game::run(){
-	ContextSettings settings;
 	
-	settings.antialiasingLevel = 8;
+	
 	mainWindow.create(VideoMode(1024,600,32),"TreasureHunter", Style::Default ,settings);
 	gameScreen.init(world);
 	sf::Clock clock;
@@ -83,7 +107,6 @@ void Game::run(){
 }
 
 void Game::input(){
-	Event event;
 	while(!finishState){
 		while(mainWindow.pollEvent(event)){
 			if(event.type == Event::EventType::MouseButtonPressed){
@@ -94,4 +117,3 @@ void Game::input(){
 }
 
 Game::GameState Game::gameState = UNINITIALIZED;
-sf::RenderWindow Game::mainWindow;

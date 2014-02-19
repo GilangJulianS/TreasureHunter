@@ -12,16 +12,16 @@ using namespace sf;
 class Game{
 
 public:
-	static void start();
-	static void run();
-	static void input();
+	Game();
+	void run();
+	void input();
 private:
-	static bool isExiting();
-	static void gameLoop();
+	bool isExiting();
+	void gameLoop();
 	
 	enum GameState { UNINITIALIZED, SPLASH, PAUSE, MENU, PLAY, EXIT};
 
 	static GameState gameState;
-	static RenderWindow mainWindow;
+	RenderWindow mainWindow;
 	
 };
