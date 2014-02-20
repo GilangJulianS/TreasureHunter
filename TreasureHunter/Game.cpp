@@ -14,6 +14,7 @@ bool startClicked = false;
 bool drag = false;
 bool dragSlider = false;
 bool hoverSlider = false;
+bool showSelection;
 int dragVerteks = -1;
 int hoverVerteks = -1;
 float x, y;
@@ -34,19 +35,17 @@ Game::Game(){
 	solIdx = 0;
 	srand(time(NULL));
 	deltaTime = 0;
-
+	nTools = 0;
 	if(gameState != UNINITIALIZED)
 		return;
 	
 	//SplashScreen splash;
 	//splash.show(mainWindow);
-	gameState = Game::PLAY;
-
-	//
+	gameState = Game::MENU;
 	initialize();
-	
 	settings.antialiasingLevel = 4;
 	mainWindow.create(VideoMode(Game::SCREEN_SIZE_X,Game::SCREEN_SIZE_Y,32),"TreasureHunter", Style::Fullscreen ,settings);
+
 	Button startButton(20, 708, 100, 40);
 	init();
 	
@@ -66,6 +65,32 @@ Game::Game(){
 				startButton.texture.setScale(1, 1);
 				startButton.texture.setPosition(20, 708);
 			}
+			if(tool1xp1.getGlobalBounds().contains(event.mouseMove.x, event.mouseMove.y)){
+				selectionRect.setPosition(1020, 90);
+				showSelection = true;
+			}
+			else if(tool2xp1.getGlobalBounds().contains(event.mouseMove.x, event.mouseMove.y)){
+				selectionRect.setPosition(1125, 90);
+				showSelection = true;
+			}
+			else if(tool4xp1.getGlobalBounds().contains(event.mouseMove.x, event.mouseMove.y)){
+				selectionRect.setPosition(1240, 90);
+				showSelection = true;
+			}
+			else if(tool1xp2.getGlobalBounds().contains(event.mouseMove.x, event.mouseMove.y)){
+				selectionRect.setPosition(1020, 420);
+				showSelection = true;
+			}
+			else if(tool2xp2.getGlobalBounds().contains(event.mouseMove.x, event.mouseMove.y)){
+				selectionRect.setPosition(1125, 420);
+				showSelection = true;
+			}
+			else if(tool4xp2.getGlobalBounds().contains(event.mouseMove.x, event.mouseMove.y)){
+				selectionRect.setPosition(1240, 420);
+				showSelection = true;
+			}
+			else
+				showSelection = false;
 			if(event.type == Event::Closed)
 				mainWindow.close();
 			if(event.type == Event::MouseButtonPressed && !drag){
@@ -87,12 +112,14 @@ Game::Game(){
 			if(drag && dragVerteks!= -1){
 				x = event.mouseMove.x;
 				y = event.mouseMove.y;
-				if(x > 0 && y > 0 && x < (float)Game::SCREEN_SIZE_X && y < (float)Game::SCREEN_SIZE_Y)
+				if(x > 0 && y > 0 && x < (float)sideBar.getPosition().x - Verteks::VERTEKS_RADIUS && y < (float)Game::SCREEN_SIZE_Y - 100)
 					verteks[dragVerteks].set(x - Verteks::VERTEKS_RADIUS, y - Verteks::VERTEKS_RADIUS);
 			}
 			posUpdate();
 			draw();
 			mainWindow.draw(startButton.texture);
+			if(showSelection)
+				mainWindow.draw(selectionRect);
 			mainWindow.display();
 		}
 	}
@@ -173,6 +200,7 @@ void Game::initialize(){
 	jarak = new int[nVerteks];
 	jalan = 1;
 	solution = new int[nVerteks];
+	tools = new int[nVerteks];
 	int randX, randY;
 	bool avail;
 	int difX, difY;
@@ -314,6 +342,14 @@ void Game::solve(){
 		solIdx++;
 	}
 	for(int i=0; i<solIdx; i++){
+		if(verteks[i].type == Verteks::CONTAIN_RED){
+			tools[nTools] = Tool::TYPE_4X;
+			nTools++;
+		}
+		else if(verteks[i].type == Verteks::CONTAIN_YELLOW){
+			tools[nTools] = Tool::TYPE_2X;
+			nTools++;
+		}
 		cout << verteks[solution[i]].getNum();
 	}
 	cout << endl;
@@ -338,9 +374,39 @@ void Game::init(){
 		std::cout << "Image file Slider.png failed to load" << std::endl;
 		return;
 	}
+	if(tool1xTexture.loadFromFile("Bitmap/Tool1x.png")!=true){
+		std::cout << "Image file Slider.png failed to load" << std::endl;
+		return;
+	}
+	if(tool2xTexture.loadFromFile("Bitmap/Tool2x.png")!=true){
+		std::cout << "Image file Slider.png failed to load" << std::endl;
+		return;
+	}
+	if(tool4xTexture.loadFromFile("Bitmap/Tool4x.png")!=true){
+		std::cout << "Image file Slider.png failed to load" << std::endl;
+		return;
+	}
+	tool1xp1 = Sprite(tool1xTexture);
+	tool2xp1 = Sprite(tool2xTexture);
+	tool4xp1 = Sprite(tool4xTexture);
+	tool1xp2 = Sprite(tool1xTexture);
+	tool2xp2 = Sprite(tool2xTexture);
+	tool4xp2 = Sprite(tool4xTexture);
+	tool1xp1.setScale(0.15f, 0.15f);
+	tool2xp1.setScale(0.14f, 0.14f);
+	tool4xp1.setScale(0.12f, 0.12f);
+	tool1xp2.setScale(0.15f, 0.15f);
+	tool2xp2.setScale(0.14f, 0.14f);
+	tool4xp2.setScale(0.12f, 0.12f);
+	tool1xp1.setPosition(1020, 100);
+	tool2xp1.setPosition(1130, 100);
+	tool4xp1.setPosition(1240, 100);
+	tool1xp2.setPosition(1020, 430);
+	tool2xp2.setPosition(1130, 430);
+	tool4xp2.setPosition(1240, 430);
 	slideBar = new Vertex[2];
-	slideBar[0] = Vertex(Vector2f(1070, 650), Color::Black);
-	slideBar[1] = Vertex(Vector2f(1270, 650), Color::Black);
+	slideBar[0] = Vertex(Vector2f(1070, 700), Color::Black);
+	slideBar[1] = Vertex(Vector2f(1270, 700), Color::Black);
 	slider = Sprite(sliderTexture);
 	slider.setScale(0.1f, 0.1f);
 	slider.setPosition(slideBar[0].position.x,slideBar[0].position.y);
@@ -354,6 +420,10 @@ void Game::init(){
 	circle = CircleShape(Verteks::VERTEKS_RADIUS);
 	circle.setOutlineColor(Color::Black);
 	circle.setOutlineThickness(5);
+	selectionRect = RectangleShape(Vector2f(80,80));
+	selectionRect.setFillColor(Color::Transparent);
+	selectionRect.setOutlineThickness(5);
+	selectionRect.setOutlineColor(Color::White);
 	if(font.loadFromFile("comic.ttf")!=true){
 		cout << "failed load font" <<endl;
 	}
@@ -421,6 +491,26 @@ void Game::draw(){
 	mainWindow.draw(character);
 	mainWindow.draw(slideBar, 2, Lines);
 	mainWindow.draw(slider);
+	text.setString("Player 1");
+	text.setPosition(1000, 20);
+	text.setCharacterSize(30);
+	mainWindow.draw(text);
+	text.setString("Player 2");
+	text.setPosition(1000, 350);
+	mainWindow.draw(text);
+	text.setCharacterSize(20);
+	text.setString("Slow");
+	text.setPosition(1050, 670);
+	mainWindow.draw(text);
+	text.setString("Fast");
+	text.setPosition(1250, 670);
+	mainWindow.draw(text);
+	mainWindow.draw(tool1xp1);
+	mainWindow.draw(tool2xp1);
+	mainWindow.draw(tool4xp1);
+	mainWindow.draw(tool1xp2);
+	mainWindow.draw(tool2xp2);
+	mainWindow.draw(tool4xp2);
 }
 
 Vector2f Game::midPoint(Vector2f v1, Vector2f v2){

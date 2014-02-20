@@ -17,6 +17,8 @@ public:
 
 	void set(float x, float y);
 
+	void buyTool(Tool tool);
+
 	float x, y;
 
 };

@@ -10,7 +10,6 @@ public:
 	int state;
 	
 	Tool(int type);
-
-private:
 	int type, time, price;
+	
 };

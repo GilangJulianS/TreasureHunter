@@ -23,3 +23,10 @@ void Player::move(float x, float y){
 	bound.height = Player::DEFAULT_HEIGHT;
 	bound.width = Player::DEFAULT_WIDTH;
 }
+
+void Player::buyTool(Tool tool){
+	if(coins >= tool.price){
+		coins -= tool.price;
+		tools.push_back(tool);
+	}
+}

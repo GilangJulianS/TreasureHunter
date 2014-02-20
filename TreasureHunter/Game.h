@@ -27,8 +27,10 @@ public:
 
 	Player player;
 	int *solution;
+	int *tools;
 	int *jarak;
 	int jalan;
+	int nTools;
 	int minScore, minTime, nVerteks, solIdx;
 	
 	void initialize();
@@ -66,11 +68,21 @@ private:
 	Sprite character;
 	Sprite sideBar;
 	Sprite slider;
+	Sprite tool1xp1;
+	Sprite tool2xp1;
+	Sprite tool4xp1;
+	Sprite tool1xp2;
+	Sprite tool2xp2;
+	Sprite tool4xp2;
+	Texture tool1xTexture;
+	Texture tool2xTexture;
+	Texture tool4xTexture;
 	Texture boxTexture;
 	Texture characterTexture;
 	Texture sideBarTexture;
 	Texture sliderTexture;
 	CircleShape circle;
+	RectangleShape selectionRect;
 	Vertex *slideBar;
 
 };
