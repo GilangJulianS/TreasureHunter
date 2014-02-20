@@ -16,11 +16,11 @@ using namespace sf;
 class Game{
 
 public:
-	static const int SCREEN_SIZE_X = 1024;
-	static const int SCREEN_SIZE_Y = 600;
+	static const int SCREEN_SIZE_X = 1366;
+	static const int SCREEN_SIZE_Y = 768;
+	static const int MAX_SLEEP_TIME = 25;
 
 	Game();
-	void run();
 	void input();
 	void posUpdate();
 	//
@@ -35,24 +35,17 @@ public:
 
 	void solve();
 
-	void generatePos();
-
 	void update(int elapsedTime);
 
-	std::vector<Verteks> getVertices();
-
-	std::vector<Peti> getPeti();
-
-	//
-
 	void init();
+	
 	void draw();
+	
 	sf::Vector2f *positions;
 
 private:
-	bool isExiting();
-	void gameLoop();
 	
+
 	enum GameState { UNINITIALIZED, SPLASH, PAUSE, MENU, PLAY, EXIT};
 
 	static GameState gameState;
@@ -61,6 +54,7 @@ private:
 	//
 	bool isDuplicate(int j);
 	int deltaTime;
+	int delayTime;
 
 	sf::Vector2f midPoint(sf::Vector2f v1, sf::Vector2f v2);
 	sf::Font font;
@@ -68,9 +62,15 @@ private:
 	Verteks v;
 
 	
-	Sprite sprite;
-	Sprite playerSprite;
-	Texture texture;
-	Texture character;
+	Sprite box;
+	Sprite character;
+	Sprite sideBar;
+	Sprite slider;
+	Texture boxTexture;
+	Texture characterTexture;
+	Texture sideBarTexture;
+	Texture sliderTexture;
 	CircleShape circle;
+	Vertex *slideBar;
+
 };
