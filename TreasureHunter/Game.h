@@ -19,6 +19,13 @@ public:
 	static const int SCREEN_SIZE_X = 1366;
 	static const int SCREEN_SIZE_Y = 768;
 	static const int MAX_SLEEP_TIME = 25;
+	static const int P1_TOOL_1X = 0;
+	static const int P1_TOOL_2X = 1;
+	static const int P1_TOOL_4X = 2;
+	static const int P2_TOOL_1X = 3;
+	static const int P2_TOOL_2X = 4;
+	static const int P2_TOOL_4X = 5;
+
 
 	Game();
 	void input();
@@ -27,7 +34,7 @@ public:
 
 	Player player;
 	int *solution;
-	int *tools;
+	int *solutionTools;
 	int *jarak;
 	int jalan;
 	int nTools;
@@ -42,6 +49,8 @@ public:
 	void init();
 	
 	void draw();
+
+	void processEvent(sf::Event event);
 	
 	sf::Vector2f *positions;
 
@@ -74,6 +83,8 @@ private:
 	Sprite tool1xp2;
 	Sprite tool2xp2;
 	Sprite tool4xp2;
+	Sprite coin;
+	Texture coinTexture;
 	Texture tool1xTexture;
 	Texture tool2xTexture;
 	Texture tool4xTexture;

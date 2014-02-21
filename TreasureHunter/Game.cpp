@@ -15,8 +15,12 @@ bool drag = false;
 bool dragSlider = false;
 bool hoverSlider = false;
 bool showSelection;
+bool toolClicked;
 int dragVerteks = -1;
 int hoverVerteks = -1;
+int pointedTool = -1;
+int lastMouseX = -1;
+int lastMouseY = -1;
 float x, y;
 Event event;
 ContextSettings settings;
@@ -51,13 +55,12 @@ Game::Game(){
 	
 	while(!startClicked){
 		while(mainWindow.pollEvent(event)){
-			hoverVerteks = -1;
-			for(int i=0;i<nVerteks;i++){
-				if(verteks[i].bound.contains(event.mouseMove.x, event.mouseMove.y)){
-					hoverVerteks = i;
-				}
+			if(event.mouseMove.x != 0 && event.mouseMove.y != 0){
+				lastMouseX = event.mouseMove.x;
+				lastMouseY = event.mouseMove.y;
 			}
-			if(startButton.bound.contains(event.mouseMove.x, event.mouseMove.y)){
+			processEvent(event);
+			if(startButton.bound.contains(lastMouseX, lastMouseY)){
 				startButton.texture.setScale(0.9f, 0.9f);
 				startButton.texture.setPosition(25, 710);
 			}
@@ -65,56 +68,21 @@ Game::Game(){
 				startButton.texture.setScale(1, 1);
 				startButton.texture.setPosition(20, 708);
 			}
-			if(tool1xp1.getGlobalBounds().contains(event.mouseMove.x, event.mouseMove.y)){
-				selectionRect.setPosition(1020, 90);
-				showSelection = true;
-			}
-			else if(tool2xp1.getGlobalBounds().contains(event.mouseMove.x, event.mouseMove.y)){
-				selectionRect.setPosition(1125, 90);
-				showSelection = true;
-			}
-			else if(tool4xp1.getGlobalBounds().contains(event.mouseMove.x, event.mouseMove.y)){
-				selectionRect.setPosition(1240, 90);
-				showSelection = true;
-			}
-			else if(tool1xp2.getGlobalBounds().contains(event.mouseMove.x, event.mouseMove.y)){
-				selectionRect.setPosition(1020, 420);
-				showSelection = true;
-			}
-			else if(tool2xp2.getGlobalBounds().contains(event.mouseMove.x, event.mouseMove.y)){
-				selectionRect.setPosition(1125, 420);
-				showSelection = true;
-			}
-			else if(tool4xp2.getGlobalBounds().contains(event.mouseMove.x, event.mouseMove.y)){
-				selectionRect.setPosition(1240, 420);
-				showSelection = true;
-			}
-			else
-				showSelection = false;
-			if(event.type == Event::Closed)
-				mainWindow.close();
+			
 			if(event.type == Event::MouseButtonPressed && !drag){
-				if(startButton.bound.contains(event.mouseButton.x, event.mouseButton.y)){
+				if(startButton.bound.contains(lastMouseX, lastMouseY)){
 					startClicked = true;
 				}
 				for(int i=0;i<nVerteks;i++){
-					if(verteks[i].bound.contains(event.mouseButton.x, event.mouseButton.y)){
+					if(verteks[i].bound.contains(lastMouseX, lastMouseY)){
 						dragVerteks = i;
 						hoverVerteks = i;
 					}
 				}
 				drag = true;
 			}
-			if(event.type == Event::MouseButtonReleased && drag){
-				drag = false;
-				dragVerteks = -1;
-			}
-			if(drag && dragVerteks!= -1){
-				x = event.mouseMove.x;
-				y = event.mouseMove.y;
-				if(x > 0 && y > 0 && x < (float)sideBar.getPosition().x - Verteks::VERTEKS_RADIUS && y < (float)Game::SCREEN_SIZE_Y - 100)
-					verteks[dragVerteks].set(x - Verteks::VERTEKS_RADIUS, y - Verteks::VERTEKS_RADIUS);
-			}
+			if(event.type == Event::Closed)
+				mainWindow.close();
 			posUpdate();
 			draw();
 			mainWindow.draw(startButton.texture);
@@ -163,9 +131,12 @@ Game::Game(){
 		//sleep(milliseconds(delayTime));
 	}
 
-	while(!finishState){
+	while(true){
+		while(mainWindow.pollEvent(event)){
+			if(event.type == Event::MouseButtonPressed)
+				mainWindow.close();
+		}
 	}
-	mainWindow.close();
 }
 	
 void Game::initialize(){
@@ -200,7 +171,7 @@ void Game::initialize(){
 	jarak = new int[nVerteks];
 	jalan = 1;
 	solution = new int[nVerteks];
-	tools = new int[nVerteks];
+	solutionTools = new int[nVerteks];
 	int randX, randY;
 	bool avail;
 	int difX, difY;
@@ -257,15 +228,25 @@ void Game::update(int elapsedTime){
 		if(verteks[player.destVerteks].bound.intersects(player.bound)){
 			player.set(verteks[player.destVerteks].bound.left, verteks[player.destVerteks].bound.top);
 			if(verteks[player.destVerteks].getType() == verteks[player.destVerteks].CONTAIN_GREEN){
-				sleep(milliseconds(250));
+				sleep(milliseconds(250 * (delayTime/Game::MAX_SLEEP_TIME)));
+				if(player.nTools1x > 0){
+					player.useTool(Tool::TYPE_NORMAL);
+					player.coins++;
+				}
 			}
 			else if (verteks[player.destVerteks].getType() == verteks[player.destVerteks].CONTAIN_YELLOW){
-				sleep(milliseconds(250));
-				player.coins++;
+				sleep(milliseconds(250 * (delayTime/Game::MAX_SLEEP_TIME)));
+				if(player.nTools2x > 0){
+					player.useTool(Tool::TYPE_2X);
+					player.coins+=3;
+				}
 			}
 			else if (verteks[player.destVerteks].getType() == verteks[player.destVerteks].CONTAIN_RED){
-				sleep(milliseconds(250));
-				player.coins +=2;
+				sleep(milliseconds(250 * (delayTime/Game::MAX_SLEEP_TIME)));
+				if(player.nTools4x > 0){
+					player.useTool(Tool::TYPE_4X);
+					player.coins +=5;
+				}
 			}
 			jalan++;
 			cout << player.coins << endl;
@@ -343,14 +324,20 @@ void Game::solve(){
 	}
 	for(int i=0; i<solIdx; i++){
 		if(verteks[i].type == Verteks::CONTAIN_RED){
-			tools[nTools] = Tool::TYPE_4X;
+			solutionTools[nTools] = Tool::TYPE_4X;
 			nTools++;
 		}
 		else if(verteks[i].type == Verteks::CONTAIN_YELLOW){
-			tools[nTools] = Tool::TYPE_2X;
+			solutionTools[nTools] = Tool::TYPE_2X;
 			nTools++;
 		}
 		cout << verteks[solution[i]].getNum();
+	}
+	for(int i=0; i<nTools;i++){
+		if(solutionTools[i] == Tool::TYPE_2X)
+			player.buyTool(Tool::TYPE_2X);
+		else if(solutionTools[i] == Tool::TYPE_4X)
+			player.buyTool(Tool::TYPE_4X);
 	}
 	cout << endl;
 }
@@ -386,6 +373,12 @@ void Game::init(){
 		std::cout << "Image file Slider.png failed to load" << std::endl;
 		return;
 	}
+	if(coinTexture.loadFromFile("Bitmap/koin.png")!=true){
+		std::cout << "Image file koin.png failed to load" << std::endl;
+		return;
+	}
+	coin = Sprite(coinTexture);
+	coin.setScale(0.3f, 0.3f);
 	tool1xp1 = Sprite(tool1xTexture);
 	tool2xp1 = Sprite(tool2xTexture);
 	tool4xp1 = Sprite(tool4xTexture);
@@ -491,6 +484,12 @@ void Game::draw(){
 	mainWindow.draw(character);
 	mainWindow.draw(slideBar, 2, Lines);
 	mainWindow.draw(slider);
+	mainWindow.draw(tool1xp1);
+	mainWindow.draw(tool2xp1);
+	mainWindow.draw(tool4xp1);
+	mainWindow.draw(tool1xp2);
+	mainWindow.draw(tool2xp2);
+	mainWindow.draw(tool4xp2);
 	text.setString("Player 1");
 	text.setPosition(1000, 20);
 	text.setCharacterSize(30);
@@ -505,12 +504,45 @@ void Game::draw(){
 	text.setString("Fast");
 	text.setPosition(1250, 670);
 	mainWindow.draw(text);
-	mainWindow.draw(tool1xp1);
-	mainWindow.draw(tool2xp1);
-	mainWindow.draw(tool4xp1);
-	mainWindow.draw(tool1xp2);
-	mainWindow.draw(tool2xp2);
-	mainWindow.draw(tool4xp2);
+	text.setColor(Color::Red);
+
+	coin.setPosition(1000, 200);
+	text.setString(std::to_string(player.coins));
+	text.setPosition(coin.getPosition().x  + 80, coin.getPosition().y + 20);
+	mainWindow.draw(text);
+	mainWindow.draw(coin);
+	coin.setPosition(1000, 530);
+	text.setString(std::to_string(player.coins));
+	text.setPosition(coin.getPosition().x  + 80, coin.getPosition().y + 20);
+	mainWindow.draw(text);
+	mainWindow.draw(coin);
+	
+	FloatRect rect;
+	rect = tool1xp1.getGlobalBounds();
+	text.setString(std::to_string(player.nTools1x));
+	text.setPosition(rect.left, rect.top + rect.height - 20);
+	mainWindow.draw(text);
+	rect = tool2xp1.getGlobalBounds();
+	text.setString(std::to_string(player.nTools2x));
+	text.setPosition(rect.left, rect.top + rect.height - 20);
+	mainWindow.draw(text);
+	rect = tool4xp1.getGlobalBounds();
+	text.setString(std::to_string(player.nTools4x));
+	text.setPosition(rect.left, rect.top + rect.height - 20);
+	mainWindow.draw(text);
+	rect = tool1xp2.getGlobalBounds();
+	text.setString(std::to_string(player.nTools1x));
+	text.setPosition(rect.left, rect.top + rect.height - 20);
+	mainWindow.draw(text);
+	rect = tool2xp2.getGlobalBounds();
+	text.setString(std::to_string(player.nTools2x));
+	text.setPosition(rect.left, rect.top + rect.height - 20);
+	mainWindow.draw(text);
+	rect = tool4xp2.getGlobalBounds();
+	text.setString(std::to_string(player.nTools4x));
+	text.setPosition(rect.left, rect.top + rect.height - 20);
+	mainWindow.draw(text);
+	text.setColor(Color::Black);
 }
 
 Vector2f Game::midPoint(Vector2f v1, Vector2f v2){
@@ -531,4 +563,79 @@ bool Game::isDuplicate(int j){
 	return duplicate;
 }
 
+void Game::processEvent(Event event){
+	hoverVerteks = -1;
+	for(int i=0;i<nVerteks;i++){
+		if(verteks[i].bound.contains(lastMouseX, lastMouseY)){
+			hoverVerteks = i;
+		}
+	}
+	if(tool1xp1.getGlobalBounds().contains(lastMouseX, lastMouseY)){
+		selectionRect.setPosition(1020, 90);
+		showSelection = true;
+		pointedTool = Game::P1_TOOL_1X;
+	}
+	else if(tool2xp1.getGlobalBounds().contains(lastMouseX, lastMouseY)){
+		selectionRect.setPosition(1125, 90);
+		showSelection = true;
+		pointedTool = Game::P1_TOOL_2X;
+	}
+	else if(tool4xp1.getGlobalBounds().contains(lastMouseX, lastMouseY)){
+		selectionRect.setPosition(1240, 90);
+		showSelection = true;
+		pointedTool = Game::P1_TOOL_4X;
+	}
+	else if(tool1xp2.getGlobalBounds().contains(lastMouseX, lastMouseY)){
+		selectionRect.setPosition(1020, 420);
+		showSelection = true;
+		pointedTool = Game::P2_TOOL_1X;
+	}
+	else if(tool2xp2.getGlobalBounds().contains(lastMouseX, lastMouseY)){
+		selectionRect.setPosition(1125, 420);
+		showSelection = true;
+		pointedTool = Game::P2_TOOL_2X;
+	}
+	else if(tool4xp2.getGlobalBounds().contains(lastMouseX, lastMouseY)){
+		selectionRect.setPosition(1240, 420);
+		showSelection = true;
+		pointedTool = Game::P2_TOOL_4X;
+	}
+	else{
+		pointedTool = -1;
+		showSelection = false;
+	}
+	if(event.type == Event::MouseButtonPressed){
+		switch(pointedTool){
+		case Game::P1_TOOL_1X:
+			player.buyTool(Tool(Tool::TYPE_NORMAL));
+			break;
+		case Game::P1_TOOL_2X:
+			player.buyTool(Tool(Tool::TYPE_2X));
+			break;
+		case Game::P1_TOOL_4X:
+			player.buyTool(Tool(Tool::TYPE_4X));
+			break;
+		case Game::P2_TOOL_1X:
+			player.buyTool(Tool(Tool::TYPE_NORMAL));
+			break;
+		case Game::P2_TOOL_2X:
+			player.buyTool(Tool(Tool::TYPE_2X));
+			break;
+		case Game::P2_TOOL_4X:
+			player.buyTool(Tool(Tool::TYPE_4X));
+			break;
+		default: break;
+		}
+	}
+	if(event.type == Event::MouseButtonReleased && drag){
+		drag = false;
+		dragVerteks = -1;
+	}
+	if(drag && dragVerteks!= -1){
+		x = lastMouseX;
+		y = lastMouseY;
+		if(x > 0 && y > 0 && x < (float)sideBar.getPosition().x - Verteks::VERTEKS_RADIUS && y < (float)Game::SCREEN_SIZE_Y - 100)
+			verteks[dragVerteks].set(x - Verteks::VERTEKS_RADIUS, y - Verteks::VERTEKS_RADIUS);
+	}
+}
 Game::GameState Game::gameState = UNINITIALIZED;

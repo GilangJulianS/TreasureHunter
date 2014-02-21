@@ -8,7 +8,7 @@ public:
 	static const int DEFAULT_WIDTH = 40;
 	int curVerteks, destVerteks;
 	int nVisitedVertices;
-	int coins;
+	int coins, nTools1x, nTools2x, nTools4x;
 	sf::FloatRect bound;
 	// constructor
 	Player();
@@ -18,6 +18,8 @@ public:
 	void set(float x, float y);
 
 	void buyTool(Tool tool);
+
+	void useTool(int type);
 
 	float x, y;
 

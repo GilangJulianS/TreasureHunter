@@ -1,11 +1,12 @@
 #include "stdafx.h"
 #include "Player.h"
 
-std::vector<Tool> tools;
 
 Player::Player() {
-	tools.clear();
 	coins = 0;
+	nTools1x = 0;
+	nTools2x = 0;
+	nTools4x = 0;
 	nVisitedVertices = 1;
 }
 
@@ -27,6 +28,30 @@ void Player::move(float x, float y){
 void Player::buyTool(Tool tool){
 	if(coins >= tool.price){
 		coins -= tool.price;
-		tools.push_back(tool);
+		switch(tool.type){
+		case Tool::TYPE_NORMAL:
+			nTools1x++;
+			break;
+		case Tool::TYPE_2X:
+			nTools2x++;
+			break;
+		case Tool::TYPE_4X:
+			nTools4x++;
+			break;
+		}
+	}
+}
+
+void Player::useTool(int type){
+	switch(type){
+	case Tool::TYPE_NORMAL:
+		nTools1x--;
+		break;
+	case Tool::TYPE_2X:
+		nTools2x--;
+		break;
+	case Tool::TYPE_4X:
+		nTools4x--;
+		break;
 	}
 }
