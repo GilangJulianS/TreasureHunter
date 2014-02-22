@@ -82,23 +82,14 @@ int _tmain(int argc, _TCHAR* argv[])
 	sf::Texture AImodeButton,pvpButton, vsAIButton, watchBot;
 	sf::RectangleShape pvpButtonShape, watchBotShape, vsAIButtonShape;
 	vsAIButton.loadFromFile("Bitmap/AIMode.png");
-	/*vsAIButtonShape.setPosition(1070,269);
-	vsAIButtonShape.setSize(sf::Vector2f(220,250));
-	vsAIButtonShape.setOrigin(110,125);*/
-	vsAIButtonShape.setPosition(1070,340);
+	vsAIButtonShape.setPosition(294,290);
 	vsAIButtonShape.setSize(sf::Vector2f(500,647));
 	vsAIButtonShape.setOrigin(250,324);
 	vsAIButtonShape.setTexture(&vsAIButton);
-	/*pvpButton2.loadFromFile("Bitmap/pvp.png");
-	pvpButtonShape2.setSize(sf::Vector2f(139,250));
-	pvpButtonShape2.setPosition(53,158);*/
 	pvpButton.loadFromFile("Bitmap/PlayerMode.png");
 	pvpButtonShape.setSize(sf::Vector2f(500,647));
-	pvpButtonShape.setPosition(294,340);
+	pvpButtonShape.setPosition(1070,340);
 	pvpButtonShape.setOrigin(250, 324);
-	/*pvpButtonShape.setSize(sf::Vector2f(225,245));
-	pvpButtonShape.setPosition(294,290);
-	pvpButtonShape.setOrigin(112, 122);*/
 	pvpButtonShape.setTexture(&pvpButton);
 	/*watchBot.loadFromFile("Bitmap/watchBot.png");
 	watchBotShape.setSize(sf::Vector2f(261,208));
@@ -136,7 +127,7 @@ int _tmain(int argc, _TCHAR* argv[])
 					case sf::Event::MouseMoved:
 						if (playButton.getGlobalBounds().contains(lastMouseX, lastMouseY)){
 							playButton.setTexture(playSelectedTexture);
-							playButton.setScale(0.5f, 0.5f);
+							playButton.setScale(0.55f, 0.55f);
 						}
 						else{
 							playButton.setTexture(playButtonTexture);
@@ -177,15 +168,15 @@ int _tmain(int argc, _TCHAR* argv[])
 
 					case sf::Event::MouseMoved:
 						if(vsAIButtonShape.getGlobalBounds().contains(lastMouseX, lastMouseY))
-							vsAIButtonShape.setScale(0.9f, 0.9f);
+							vsAIButtonShape.setScale(0.95f, 0.95f);
 						else
 							vsAIButtonShape.setScale(1, 1);
 						if(pvpButtonShape.getGlobalBounds().contains(lastMouseX, lastMouseY))
-							pvpButtonShape.setScale(0.9f, 0.9f);
+							pvpButtonShape.setScale(0.95f, 0.95f);
 						else
 							pvpButtonShape.setScale(1,1);
 						if(backButtonShape.getGlobalBounds().contains(lastMouseX, lastMouseY))
-							backButtonShape.setScale(0.9f, 0.9f);
+							backButtonShape.setScale(0.95f, 0.95f);
 						else
 							backButtonShape.setScale(1, 1);
 						break;
@@ -232,15 +223,15 @@ int _tmain(int argc, _TCHAR* argv[])
 						#pragma region
 						if (namiButtonShape.getGlobalBounds().contains(lastMouseX, lastMouseY)){
 							namiButtonShape.setTexture(&namiButton2);
-							namiButtonShape.setScale(0.9f, 0.9f);
+							namiButtonShape.setScale(0.95f, 0.95f);
 						}
 						else if (luffyButtonShape.getGlobalBounds().contains(lastMouseX, lastMouseY)){
 							luffyButtonShape.setTexture(&luffyButton2);
-							luffyButtonShape.setScale(0.9f, 0.9f);
+							luffyButtonShape.setScale(0.95f, 0.95f);
 						}
 						else if (zoroButtonShape.getGlobalBounds().contains(lastMouseX, lastMouseY)){
 							zoroButtonShape.setTexture(&zoroButton2);
-							zoroButtonShape.setScale(0.9f, 0.9f);
+							zoroButtonShape.setScale(0.95f, 0.95f);
 						}
 						else{
 							luffyButtonShape.setTexture(&luffyButton);
@@ -251,7 +242,7 @@ int _tmain(int argc, _TCHAR* argv[])
 							zoroButtonShape.setScale(1,1);
 						}
 						if(backButtonShape.getGlobalBounds().contains(lastMouseX, lastMouseY))
-							backButtonShape.setScale(0.9f, 0.9f);
+							backButtonShape.setScale(0.95f, 0.95f);
 						else
 							backButtonShape.setScale(1, 1);
 						break;
@@ -287,7 +278,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		
 		if (Game::gameState == Game::GameState::MENU){
 			Game::mainWindow.draw(frontBGShape);
-			backButtonShape.setPosition(1100,688);
+			backButtonShape.setPosition(660,680);
 			Game::mainWindow.draw(pvpButtonShape);
 			Game::mainWindow.draw(backButtonShape);
 			//Game::mainWindow.draw(watchBotShape);
@@ -296,7 +287,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		}
 		if (Game::gameState == Game::GameState::AIMODE){
 			Game::mainWindow.draw(frontBGShape);
-			backButtonShape.setPosition(660,678);
+			backButtonShape.setPosition(660,700);
 			Game::mainWindow.draw(namiButtonShape);
 			Game::mainWindow.draw(luffyButtonShape);
 			Game::mainWindow.draw(zoroButtonShape);
