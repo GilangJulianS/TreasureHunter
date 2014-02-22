@@ -25,20 +25,21 @@ public:
 	static const int P2_TOOL_1X = 3;
 	static const int P2_TOOL_2X = 4;
 	static const int P2_TOOL_4X = 5;
-
+	static const int AI_MODE = 0;
+	static const int PLAYER_MODE = 1;
 
 	Game();
 	void input();
 	void posUpdate();
 	//
 
-	Player player;
+	Player player1, player2;
 	int *solution;
 	int *solutionTools;
 	int *jarak;
 	int jalan;
 	int nTools;
-	int minScore, minTime, nVerteks, solIdx;
+	int minScore, maxTime, nVerteks, solIdx;
 	
 	void initialize();
 
@@ -50,12 +51,37 @@ public:
 	
 	void draw();
 
+	void selectTool();
+
+	void slide();
+
 	void processEvent(sf::Event event);
+
+	void prepare();
 	
 	sf::Vector2f *positions;
 
 private:
-	
+	bool finishState;
+	bool startClicked;
+	bool drag;
+	bool dragSlider;
+	bool hoverSlider;
+	bool showSelection;
+	bool toolClicked;
+	bool selectTime;
+	bool toolTime;
+	bool requestDraw;
+	int dragVerteks;
+	int hoverVerteks;
+	int pointedTool;
+	float lastMouseX;
+	float lastMouseY;
+	int timeCounter;
+	int delayCounter;
+	int elapsedTimeUnit;
+	int gameMode;
+	float x, y;
 
 	enum GameState { UNINITIALIZED, SPLASH, PAUSE, MENU, PLAY, EXIT};
 
@@ -74,7 +100,7 @@ private:
 
 	
 	Sprite box;
-	Sprite character;
+	Sprite character1, character2;
 	Sprite sideBar;
 	Sprite slider;
 	Sprite tool1xp1;
@@ -84,6 +110,7 @@ private:
 	Sprite tool2xp2;
 	Sprite tool4xp2;
 	Sprite coin;
+	Sprite coin2;
 	Texture coinTexture;
 	Texture tool1xTexture;
 	Texture tool2xTexture;

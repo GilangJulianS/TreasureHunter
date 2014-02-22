@@ -32,9 +32,11 @@ public:
 
 	int getNum();
 
-	int getX();
+	int getIdx();
 
-	int getY();
+	float getX();
+
+	float getY();
 
 	void set(float x, float y);
 	

@@ -38,7 +38,11 @@ int Verteks::getNum() {
 	return num;
 }
 
-int Verteks::getX() {
+int Verteks::getIdx(){
+	return num-1;
+}
+
+float Verteks::getX() {
 	return x;
 }
 
@@ -50,7 +54,7 @@ void Verteks::set(float x, float y){
 	centerY = y+Verteks::VERTEKS_RADIUS;
 }
 
-int Verteks::getY() {
+float Verteks::getY() {
 	return y;
 }
 
