@@ -32,7 +32,7 @@ public:
 	void input();
 	void posUpdate();
 	//
-
+	static RenderWindow mainWindow;
 	Player player1, player2;
 	int *solution;
 	int *solutionTools;
@@ -42,6 +42,8 @@ public:
 	int minScore, maxTime, nVerteks, solIdx;
 	
 	void initialize();
+
+	void start();
 
 	void solve();
 
@@ -60,7 +62,13 @@ public:
 	void prepare();
 	
 	sf::Vector2f *positions;
+	enum GameState { FRONT, MENU, SINGEPLAYER, DOUBLEPLAYER, AIMODE, PLAY };
+	enum GreedyMode{ TYPE_1, TYPE_2, TYPE_3 };
 
+	static GameState gameState;
+	static GreedyMode greedyMode;
+	static int gameMode;
+	static bool isCreated;
 private:
 	bool finishState;
 	bool startClicked;
@@ -80,13 +88,11 @@ private:
 	int timeCounter;
 	int delayCounter;
 	int elapsedTimeUnit;
-	int gameMode;
+	
 	float x, y;
 
-	enum GameState { UNINITIALIZED, SPLASH, PAUSE, MENU, PLAY, EXIT};
-
-	static GameState gameState;
-	RenderWindow mainWindow;
+	
+	
 	
 	//
 	bool isDuplicate(int j);

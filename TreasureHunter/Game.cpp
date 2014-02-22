@@ -11,7 +11,7 @@ using namespace std;
 
 
 Event event;
-ContextSettings settings;
+
 
 
 vector<Verteks> verteks;
@@ -21,18 +21,23 @@ sf::Text text, player1Text, player2Text, coin1Text, coin2Text, slowText, fastTex
 sf::Text nTool11Text, nTool12Text, nTool14Text, nTool21Text, nTool22Text, nTool24Text;
 std::string str;
 
-Game::Game(){
-	prepare();
-	if(gameState != UNINITIALIZED)
-		return;
-	
-	//SplashScreen splash;
-	//splash.show(mainWindow);
-	gameState = Game::MENU;
-	initialize();
-	settings.antialiasingLevel = 4;
-	mainWindow.create(VideoMode(Game::SCREEN_SIZE_X,Game::SCREEN_SIZE_Y,32),"TreasureHunter", Style::Fullscreen ,settings);
+Game::GameState Game::gameState;
+Game::GreedyMode Game::greedyMode;
+int Game::gameMode;
+bool Game::isCreated;
+RenderWindow Game::mainWindow;
 
+Game::Game(){
+	Game::isCreated = false;
+	prepare();
+	initialize();
+}
+
+void Game::start(){
+	if(gameMode == Game::PLAYER_MODE)
+		selectTime = true;
+	else
+		selectTime = false;
 	Button startButton(20, 708, 100, 40);
 	init();
 	
@@ -72,7 +77,7 @@ Game::Game(){
 			mainWindow.draw(startButton.texture);
 			mainWindow.display();
 		}
-	}	//nunggu start
+	}
 
 	solve();
 	
@@ -175,11 +180,11 @@ void Game::initialize(){
 	for(int i=0;i<n;i++){
 		p = peti[i];
 		if(p.type == Peti::RED)
-			verteks[p.loc].type = Verteks::CONTAIN_RED;
+			verteks[p.loc].setUp(Verteks::CONTAIN_RED);
 		if(p.type == Peti::YELLOW)
-			verteks[p.loc].type = Verteks::CONTAIN_YELLOW;
+			verteks[p.loc].setUp(Verteks::CONTAIN_YELLOW);
 		if(p.type == Peti::GREEN)
-			verteks[p.loc].type = Verteks::CONTAIN_GREEN;
+			verteks[p.loc].setUp(Verteks::CONTAIN_GREEN);
 	}
 	//
 }
@@ -200,7 +205,7 @@ void Game::update(int elapsedTime){
 		//if(player1.colliBound.contains(verteks[player1.destVerteks].centerX, verteks[player1.destVerteks].centerY)){
 		if(player1.timeToGo <=0){
 			player1.setCenter(verteks[player1.destVerteks].centerX, verteks[player1.destVerteks].centerY);
-			
+			cout << verteks[player1.destVerteks].time << endl;
 			if(!player1.bukaPeti){
 				if(verteks[player1.destVerteks].getType() == Verteks::CONTAIN_GREEN){
 					if(player1.nTools1x > 0){
@@ -844,10 +849,6 @@ void Game::prepare(){
 	nTools = 0;
 	verteks.clear();
 	peti.clear();
-	gameMode = Game::PLAYER_MODE;
-	if(gameMode == Game::PLAYER_MODE)
-		selectTime = true;
-	else
-		selectTime = false;
+	//gameMode = Game::PLAYER_MODE;
+	
 }
-Game::GameState Game::gameState = UNINITIALIZED;
