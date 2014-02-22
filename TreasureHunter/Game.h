@@ -45,7 +45,9 @@ public:
 
 	void start();
 
-	void solve();
+	void solve1();
+	void solve2();
+	void solve3();
 
 	void update(int elapsedTime);
 

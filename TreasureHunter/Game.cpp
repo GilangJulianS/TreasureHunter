@@ -78,8 +78,19 @@ void Game::start(){
 			mainWindow.display();
 		}
 	}
-
-	solve();
+	switch(greedyMode){
+	case GreedyMode::TYPE_1:
+		solve1();
+		break;
+	case GreedyMode::TYPE_2:
+		solve2();
+		break;
+	case GreedyMode::TYPE_3:
+		solve3();
+		break;
+	default: break;
+	}
+	
 	
 	//formerly thread 1
 	sf::Clock clock;
@@ -375,7 +386,7 @@ void Game::posUpdate(){
 		player2.set(verteks[player2.curVerteks].centerX-(Player::DEFAULT_WIDTH/2), verteks[player2.curVerteks].centerY-(Player::DEFAULT_HEIGHT/2));
 }
 
-void Game::solve(){
+void Game::solve1(){
 	int j, point;
 	int jaraktempuh = 0;
 	int minLength, idxL, idxR, idx;
@@ -451,6 +462,14 @@ void Game::solve(){
 	player1.destVerteks = solution[1];
 	player1.curVerteks = solution[0];
 	player1.timeToGo = verteks[player1.curVerteks].lengths[player1.destVerteks];
+}
+
+void Game::solve2(){
+
+}
+
+void Game::solve3(){
+
 }
 
 void Game::init(){
