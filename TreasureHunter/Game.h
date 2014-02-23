@@ -9,6 +9,10 @@
 #include "Peti.h"
 #include "Player.h"
 #include <vector>
+#include <iostream>
+#include <fstream>
+#include <cstdio>
+
 
 using namespace std;
 using namespace sf;
@@ -40,7 +44,8 @@ public:
 	int jalan;
 	int nTools;
 	int minScore, maxTime, nVerteks, solIdx;
-	
+	bool *isi;
+
 	void initialize();
 
 	void start();
@@ -71,6 +76,8 @@ public:
 	static GreedyMode greedyMode;
 	static int gameMode;
 	static bool isCreated;
+
+	FILE *file;
 private:
 	bool finishState;
 	bool startClicked;

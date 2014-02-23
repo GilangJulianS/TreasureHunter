@@ -6,9 +6,9 @@
 #include <thread>
 #include <time.h>
 
+#pragma warning(disable: 4996)
+
 using namespace std;
-
-
 
 Event event;
 
@@ -67,13 +67,16 @@ void Game::start(){
 				}
 				drag = true;
 			}
-			if(event.type == Event::Closed)
+			if(event.type == Event::Closed){
 				mainWindow.close();
+				fclose(file);
+			}
 			posUpdate();
 			draw();
 			mainWindow.draw(playButton);
 			mainWindow.display();
 		}
+
 	}
 	switch(greedyMode){
 	case GreedyMode::TYPE_1:
@@ -102,6 +105,7 @@ void Game::start(){
 			slide();
 			if(event.type == Event::Closed){
 				mainWindow.close();
+				fclose(file);
 			}
 		}
 		update(elapsedTime.asMilliseconds());
@@ -114,8 +118,10 @@ void Game::start(){
 	}
 	while(true){
 		while(mainWindow.pollEvent(event)){
-			if(event.type == Event::MouseButtonPressed || event.type == Event::Closed)
+			if(event.type == Event::MouseButtonPressed || event.type == Event::Closed){
 				mainWindow.close();
+				fclose(file);
+			}
 		}
 	}
 }
@@ -123,65 +129,225 @@ void Game::start(){
 void Game::initialize(){
 	int in;
 	int nMerah, nKuning, nHijau;
-	// modal
-	cin >> player1.coins;
-	player2.coins = player1.coins;
-	// given
-	cin >> nMerah;
-	cin >> nKuning;
-	cin >> nHijau;
-	for(int i=0; i<nMerah; i++){
-		cin >> in;
-		Peti p(in-1, Peti::RED);
-		peti.push_back(p);
-	}
-	for(int i=0; i<nKuning; i++){
-		cin >> in;
-		Peti p(in-1, Peti::YELLOW);
-		peti.push_back(p);
-	}
-	for(int i=0; i<nHijau; i++){
-		cin >> in;
-		Peti p(in-1, Peti::GREEN);
-		peti.push_back(p);
-	}
-	cin >> in;
-	player1.curVerteks = in-1;  //posisi player -1 (verteks mulai dari 0)
-	player2.curVerteks = in-1;
-	cin >> minScore;
-	cin >> maxTime;
-	cin >> nVerteks;
-	jarak = new int[nVerteks];
-	jalan = 1;
-	solution = new int[nVerteks];
-	solutionTools = new int[nVerteks];
-	int randX, randY;
-	bool avail;
-	int difX, difY;
-	for(int i=0;i<nVerteks;i++){
-		Verteks v(nVerteks);
-		do{
-			avail = true;
-			randX = (rand()%18)*50;
-			randY = (rand()%12)*50;
-			for(int j=0; j<i; j++){
-				difX = randX - verteks[j].getX();
-				difY = randY - verteks[j].getY();
-				if(difX <0)
-					difX *= -1;
-				if(difY <0)
-					difY *= -1;
-				if(difX + difY <= 150){
-					avail = false;
-					break;
+	char temp[100], *temp2;
+	std::string line;
+	std::ifstream f("input.txt");
+	if(f.is_open()){
+		getline(f, line);
+		getline(f, line);
+		player1.coins = atoi(line.c_str());
+		player2.coins = player1.coins;
+		getline(f, line);
+		getline(f, line);
+		if(line=="[Given]"){
+			getline(f, line);
+			getline(f, line);
+			strcpy(temp, line.c_str());
+			temp2 = strtok(temp, ",");
+			nMerah = atoi(temp2);
+			temp2 = strtok(NULL, ",");
+			nKuning = atoi(temp2);
+			temp2 = strtok(NULL, ",");
+			nHijau = atoi(temp2);
+
+			getline(f, line);
+			strcpy(temp, line.c_str());
+			temp2 = strtok(temp, ",");
+			for(int i=0; i<nMerah; i++){
+				in = atoi(temp2);
+				temp2 = strtok(NULL, ",");
+				Peti p(in-1, Peti::RED);
+				peti.push_back(p);
+			}
+			getline(f, line);
+			strcpy(temp, line.c_str());
+			temp2 = strtok(temp, ",");
+			for(int i=0; i<nKuning; i++){
+				in = atoi(temp2);
+				temp2 = strtok(NULL, ",");
+				Peti p(in-1, Peti::YELLOW);
+				peti.push_back(p);
+			}
+			getline(f, line);
+			strcpy(temp, line.c_str());
+			temp2 = strtok(temp, ",");
+			for(int i=0; i<nHijau; i++){
+				in = atoi(temp2);
+				temp2 = strtok(NULL, ",");
+				Peti p(in-1, Peti::GREEN);
+				peti.push_back(p);
+			}
+			getline(f, line);
+			in = atoi(line.c_str());
+			player1.curVerteks = in-1;  //posisi player -1 (verteks mulai dari 0)
+			player2.curVerteks = in-1;
+			getline(f, line);
+			getline(f, line);
+			getline(f, line);
+			minScore = atoi(line.c_str());
+			getline(f, line);
+			getline(f, line);
+			getline(f, line);
+			maxTime = atoi(line.c_str());
+			getline(f, line);
+			getline(f, line);
+			getline(f, line);
+			nVerteks = atoi(line.c_str());
+			getline(f, line);
+			getline(f, line);
+			jarak = new int[nVerteks];
+			jalan = 1;
+			solution = new int[nVerteks];
+			solutionTools = new int[nVerteks];
+			int randX, randY;
+			bool avail;
+			int difX, difY;
+			for(int i=0;i<nVerteks;i++){
+				Verteks v(nVerteks);
+				getline(f, line);
+				strcpy(temp, line.c_str());
+				temp2 = strtok(temp, ",");
+				do{
+					avail = true;
+					randX = (rand()%18)*50;
+					randY = (rand()%12)*50;
+					for(int j=0; j<i; j++){
+						difX = randX - verteks[j].getX();
+						difY = randY - verteks[j].getY();
+						if(difX <0)
+							difX *= -1;
+						if(difY <0)
+							difY *= -1;
+						if(difX + difY <= 150){
+							avail = false;
+							break;
+						}
+					}
+				}while(!avail);
+				v.set((float)randX, (float)randY);
+				int j = 0;
+				while(temp2!=NULL){
+					v.lengths[j] = atoi(temp2);
+					temp2 = strtok(NULL, ",");
+					j++;
+				}
+				verteks.push_back(v);
+			}
+		}
+		else if(line == "[Random]"){
+			getline(f, line);
+			getline(f, line);
+			strcpy(temp, line.c_str());
+			temp2 = strtok(temp, ",");
+			nMerah = atoi(temp2);
+			temp2 = strtok(NULL, ",");
+			nKuning = atoi(temp2);
+			temp2 = strtok(NULL, ",");
+			nHijau = atoi(temp2);
+			getline(f, line);
+			getline(f, line);
+			getline(f, line);
+			minScore = atoi(line.c_str());
+			getline(f, line);
+			getline(f, line);
+			getline(f, line);
+			maxTime = atoi(line.c_str());
+			getline(f, line);
+			getline(f, line);
+			getline(f, line);
+			nVerteks = atoi(line.c_str());
+			getline(f, line);
+			getline(f, line);
+			jarak = new int[nVerteks];
+			jalan = 1;
+			solution = new int[nVerteks];
+			solutionTools = new int[nVerteks];
+			
+			cout << "c" << endl;
+			isi = new bool[nVerteks];
+			int r;
+			srand(time(NULL));
+			cout << "a" << endl;
+			for(int i=0;i<nVerteks;i++)
+				isi[i] = false;
+			cout << "b" << endl;
+			for(int i=0; i<nMerah;i++){
+				r = rand()%nVerteks;
+				if(!isi[r]){
+					Peti p(r, Peti::RED);
+					peti.push_back(p);
+					isi[r] = true;
+				}
+				else{
+					i--;
 				}
 			}
-		}while(!avail);
-		v.set((float)randX, (float)randY);
-		for(int j=0;j<nVerteks;j++){
-			cin >> v.lengths[j];
+			for(int i=0; i<nKuning;i++){
+				r = rand()%nVerteks;
+				if(!isi[r]){
+					Peti p(r, Peti::YELLOW);
+					peti.push_back(p);
+					isi[r] = true;
+				}
+				else{
+					i--;
+				}
+			}
+			for(int i=0; i<nHijau;i++){
+				r = rand()%nVerteks;
+				if(!isi[r]){
+					Peti p(r, Peti::GREEN);
+					peti.push_back(p);
+					isi[r] = true;
+				}
+				else{
+					i--;
+				}
+			}
+			r = rand()%nVerteks;
+			while(isi[r])
+				r = rand()%nVerteks;
+			player1.curVerteks = r;
+			player2.curVerteks = r;
+			isi[r] = true;
+			int randX, randY;
+			bool avail;
+			int difX, difY;
+			for(int i=0;i<nVerteks;i++){
+				Verteks v(nVerteks);
+				getline(f, line);
+				strcpy(temp, line.c_str());
+				temp2 = strtok(temp, ",");
+				do{
+					avail = true;
+					randX = (rand()%18)*50;
+					randY = (rand()%12)*50;
+					for(int j=0; j<i; j++){
+						difX = randX - verteks[j].getX();
+						difY = randY - verteks[j].getY();
+						if(difX <0)
+							difX *= -1;
+						if(difY <0)
+							difY *= -1;
+						if(difX + difY <= 150){
+							avail = false;
+							break;
+						}
+					}
+				}while(!avail);
+				v.set((float)randX, (float)randY);
+				int j = 0;
+				while(temp2!=NULL){
+					v.lengths[j] = atoi(temp2);
+					temp2 = strtok(NULL, ",");
+					j++;
+				}
+				verteks.push_back(v);
+			}
 		}
-		verteks.push_back(v);
+		
+	
+		f.close();
 	}
 	int n = nMerah + nKuning + nHijau;
 	Peti p;
@@ -219,8 +385,10 @@ void Game::update(int elapsedTime){
 						player1.useTool(Tool::TYPE_NORMAL);
 						player1.bukaPeti = true;
 						player1.delayTime = 4;
-						if(player1.delayTime <= verteks[player1.destVerteks].time)
+						if(player1.delayTime <= verteks[player1.destVerteks].time){
 							player1.coins++;
+							fprintf(file, "%d,G\n", player1.destVerteks);
+						}
 					}
 				}
 				else if (verteks[player1.destVerteks].getType() == Verteks::CONTAIN_YELLOW){
@@ -228,8 +396,10 @@ void Game::update(int elapsedTime){
 						player1.useTool(Tool::TYPE_2X);
 						player1.bukaPeti = true;
 						player1.delayTime = 2;
-						if(player1.delayTime <= verteks[player1.destVerteks].time)
+						if(player1.delayTime <= verteks[player1.destVerteks].time){
 							player1.coins+=3;
+							fprintf(file, "%d,K\n", player1.destVerteks);
+						}
 					}
 				}
 				else if (verteks[player1.destVerteks].getType() == Verteks::CONTAIN_RED){
@@ -237,8 +407,10 @@ void Game::update(int elapsedTime){
 						player1.useTool(Tool::TYPE_4X);
 						player1.bukaPeti = true;
 						player1.delayTime = 1;
-						if(player1.delayTime <= verteks[player1.destVerteks].time)
+						if(player1.delayTime <= verteks[player1.destVerteks].time){
 							player1.coins+=5;
+							fprintf(file, "%d,M\n", player1.destVerteks);
+						}
 					}
 				}
 			}
@@ -1318,6 +1490,7 @@ void Game::slide(){
 }
 
 void Game::prepare(){
+	file = fopen("log.txt", "w");
 	finishState = false;
 	startClicked = false;
 	drag = false;
