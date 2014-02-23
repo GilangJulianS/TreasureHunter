@@ -1011,10 +1011,10 @@ void Game::init(){
 	slider.setPosition(slideBar[0].position.x,slideBar[0].position.y);
 	box = Sprite(boxTexture);
 	box.scale(0.05f, 0.05f);
-	character1 = Sprite(characterTexture);
-	character1.scale(0.175f, 0.175f);
-	character2 = Sprite(characterTexture);
-	character2.scale(0.175f, 0.175f);
+	character1.setSize(sf::Vector2f(60,70));
+	character1.setTexture(&characterTexture);
+	character2.setSize(sf::Vector2f(60,70));
+	character2.setTexture(&characterTexture);
 	sideBar = Sprite(sideBarTexture);
 	sideBar.scale(0.86f, 0.676f);
 	sideBar.setPosition(970, 0);

@@ -108,7 +108,7 @@ private:
 
 	
 	Sprite box;
-	Sprite character1, character2;
+	sf::RectangleShape character1, character2;
 	Sprite sideBar;
 	Sprite slider;
 	Sprite tool1xp1;
