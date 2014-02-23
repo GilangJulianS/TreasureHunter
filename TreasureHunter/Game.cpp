@@ -38,7 +38,6 @@ void Game::start(){
 		selectTime = true;
 	else
 		selectTime = false;
-	Button startButton(20, 708, 100, 40);
 	init();
 	
 	//nunggu start button
@@ -50,16 +49,14 @@ void Game::start(){
 			}
 			processEvent(event);
 			slide();
-			if(startButton.bound.contains(lastMouseX, lastMouseY)){
-				startButton.texture.setScale(0.9f, 0.9f);
-				startButton.texture.setPosition(25, 710);
+			if(playButton.getGlobalBounds().contains(lastMouseX, lastMouseY)){
+				playButton.setScale(0.9f, 0.9f);
 			}
-			else if(startButton.texture.getScale().x != 1){
-				startButton.texture.setScale(1, 1);
-				startButton.texture.setPosition(20, 708);
+			else if(playButton.getScale().x != 1){
+				playButton.setScale(1, 1);
 			}
 			if(event.type == Event::MouseButtonPressed && !drag){
-				if(startButton.bound.contains(lastMouseX, lastMouseY)){
+				if(playButton.getGlobalBounds().contains(lastMouseX, lastMouseY)){
 					startClicked = true;
 				}
 				for(int i=0;i<nVerteks;i++){
@@ -74,7 +71,7 @@ void Game::start(){
 				mainWindow.close();
 			posUpdate();
 			draw();
-			mainWindow.draw(startButton.texture);
+			mainWindow.draw(playButton);
 			mainWindow.display();
 		}
 	}
@@ -269,7 +266,9 @@ void Game::update(int elapsedTime){
 		if(player1.delayTime<=0){
 			if(player1.bukaPeti){
 				player1.bukaPeti = false;
-				verteks[player1.curVerteks].type = Verteks::CONTAIN_NOTHING;
+				if(jalan == solIdx -1)
+					jalan++;
+				verteks[solution[jalan-1]].type = Verteks::CONTAIN_NOTHING;
 				requestDraw = true;
 			}
 			travelX = ((verteks[player1.destVerteks].centerX - verteks[player1.curVerteks].centerX) / verteks[player1.curVerteks].lengths[player1.destVerteks]) / 20;
@@ -394,8 +393,9 @@ void Game::solve1(){
 	//System.out.println(player.curVerteks);
 	idxL = player1.curVerteks;
 	solution[solIdx] = idxL;
+	cout<< solIdx<< "fidx" << endl;
 	solIdx++;
-	for(int i=1; i<nVerteks; i++){
+	while(solIdx < nVerteks){
 		j = 0;
 		minLength = 9999;
 		minRatio = 9999;
@@ -432,11 +432,15 @@ void Game::solve1(){
 		}
 		if(idxR!=-1)
 			idx = idxR;
-		else
+		else if(idxL!= -1)
 			idx = idxL;
+		else
+			break;
 		player1.curVerteks = idx;
 		curVerteks = verteks[idx];
 		jaraktempuh += minLength;
+		
+		cout << solIdx << " "<< idx<<endl;
 		solution[solIdx] = idx;
 		solIdx++;
 	}
@@ -577,6 +581,9 @@ void Game::solve2(){
 				NotAllVisited = true;
 			}
 		}
+		if(idxL == -1){
+			break;
+		}
 	}
 	
 	playerPosition = ppg;
@@ -632,6 +639,9 @@ void Game::solve2(){
 			if(!VisVer[k]){
 				NotAllVisited = true;
 			}
+		}
+		if(idxL == -1){
+			break;
 		}
 	}
 
@@ -704,6 +714,9 @@ void Game::solve2(){
 				NotAllVisited = true;
 			}
 		}
+		if(idxL == -1){
+			break;
+		}
 	}
 	for(i = 0; i < nVerteks; i++){
 		//cout << SPC[i] << endl;
@@ -739,18 +752,54 @@ void Game::solve2(){
 	curCoin = coins;
 	passedPath = 0;
 	choosenPath = pr;
+	for(i = 0; i<nVerteks; i++){
+		solution[i] = 0;
+	}
 	while(passedPath < nVerteks && curCoin > 0 && jalanCoin[choosenPath][passedPath] != 0){
 		if(curCoin == 2){
 			for(i = 0; i < nVerteks; i++){
 				duplicate = false;
 				for(j = 0; j < passedPath; j++){
-					if (i == jalanCoin[choosenPath][j] - 1){
+					if (i == solution[j] - 1){
 						duplicate == true;
 					}
 				}
 				if(!duplicate && verteks[jalanCoin[choosenPath][passedPath]-1].lengths[i] != -99 && simpul[i] == 1){
 					//cout << "masuk5" << i << endl;
 					jalanCoin[choosenPath][passedPath] = i + 1;
+				}
+			}
+		}
+		else{
+			if(jalanRatio[pr][passedPath] == jalanCoin[pc][passedPath]){
+				duplicate = false;
+				for(j = 0; j < passedPath; j++){
+					if ( jalanCoin[pc][passedPath] == solution[j]){
+						duplicate == true;
+					}
+				}
+				if (!duplicate){
+					solution[passedPath] = jalanCoin[pc][passedPath]-1;
+				}
+			}
+			else{
+				duplicate = false;
+				for(j = 0; j < passedPath; j++){
+					if (jalanCoin[pc][passedPath] == solution[j]){
+						duplicate == true;
+					}
+				}
+				if(!duplicate){
+					solution[passedPath] = jalanCoin[pc][passedPath]-1;
+				}
+				duplicate = false;
+				for(j = 0; j < passedPath; j++){
+					if (jalanRatio[pc][passedPath] == solution[j]){
+						duplicate == true;
+					}
+				}
+				if(!duplicate){
+					solution[passedPath] = jalanRatio[pc][passedPath]-1;
 				}
 			}
 		}
@@ -767,17 +816,8 @@ void Game::solve2(){
 	if (curCoin < 0){
 		passedPath--;
 	}
-	solIdx = passedPath - 1;
-	for(i = 0; i < passedPath-1; i++){
-		if (choosenPath == pr){
-			cout << jalanRatio[choosenPath][i]<<"a" <<endl;
-			solution[i] = jalanRatio[choosenPath][i]-1;
-		}
-		else{
-			cout << jalanCoin[choosenPath][i]<<"b" <<endl;	
-			solution[i] = jalanCoin[choosenPath][i]-1;
-		}
-	}
+	solIdx = passedPath -1;
+	cout<< "solution: " << endl;
 	for(int i=0; i<solIdx; i++){
 		if(verteks[solution[i]].type == Verteks::CONTAIN_RED){
 			solutionTools[nTools] = Tool::TYPE_4X;
@@ -787,7 +827,7 @@ void Game::solve2(){
 			solutionTools[nTools] = Tool::TYPE_2X;
 			nTools++;
 		}
-		cout << solution[i] +1;
+		cout << solution[i]+1 << endl;
 	}
 	for(int i=0; i<nTools;i++){
 		if(solutionTools[i] == Tool::TYPE_2X)
@@ -922,38 +962,23 @@ void Game::solve3(){
 
 void Game::init(){
 	positions = new Vector2f[nVerteks];
-	if(boxTexture.loadFromFile("Bitmap/Box.png")!=true){
-		std::cout << "Image file Box.png failed to load" << std::endl;
-		return;
-	}
-	if(characterTexture.loadFromFile("Bitmap/char.png")!=true){
-		std::cout << "Image file char.png failed to load" << std::endl;
-		return;
-	}
-	if(sideBarTexture.loadFromFile("Bitmap/Sidebar.png")!=true){
-		std::cout << "Image file Sidebar.png failed to load" << std::endl;
-		return;
-	}
-	if(sliderTexture.loadFromFile("Bitmap/Slider.png")!=true){
-		std::cout << "Image file Slider.png failed to load" << std::endl;
-		return;
-	}
-	if(tool1xTexture.loadFromFile("Bitmap/Tool1x.png")!=true){
-		std::cout << "Image file Slider.png failed to load" << std::endl;
-		return;
-	}
-	if(tool2xTexture.loadFromFile("Bitmap/Tool2x.png")!=true){
-		std::cout << "Image file Slider.png failed to load" << std::endl;
-		return;
-	}
-	if(tool4xTexture.loadFromFile("Bitmap/Tool4x.png")!=true){
-		std::cout << "Image file Slider.png failed to load" << std::endl;
-		return;
-	}
-	if(coinTexture.loadFromFile("Bitmap/koin.png")!=true){
-		std::cout << "Image file koin.png failed to load" << std::endl;
-		return;
-	}
+	boxTexture.loadFromFile("Bitmap/Box.png");
+	characterTexture.loadFromFile("Bitmap/char.png");
+	sideBarTexture.loadFromFile("Bitmap/Sidebar.png");
+	sliderTexture.loadFromFile("Bitmap/Slider.png");
+	tool1xTexture.loadFromFile("Bitmap/Tool1x.png");
+	tool2xTexture.loadFromFile("Bitmap/Tool2x.png");
+	tool4xTexture.loadFromFile("Bitmap/Tool4x.png");
+	coinTexture.loadFromFile("Bitmap/koin.png");
+	playBGTexture.loadFromFile("Bitmap/PlayBG.png");
+	playButtonTexture.loadFromFile("Bitmap/startButton.png");
+	playBG.setPosition(0,0);
+	playBG.setSize(sf::Vector2f(1366,768));
+	playBG.setTexture(&playBGTexture);
+	playButton.setPosition(80, 700);
+	playButton.setSize(sf::Vector2f(100,110));
+	playButton.setOrigin(50,75);
+	playButton.setTexture(&playButtonTexture);
 	coin = Sprite(coinTexture);
 	coin2 = Sprite(coinTexture);
 	coin.setScale(0.3f, 0.3f);
@@ -1065,6 +1090,7 @@ void Game::init(){
 
 void Game::draw(){
 	mainWindow.clear(Color::White);
+	mainWindow.draw(playBG);
 	mainWindow.draw(sideBar);
 	// draw lines between verteks
 	
@@ -1087,7 +1113,7 @@ void Game::draw(){
 		if(i == hoverVerteks)
 			circle.setFillColor(Color::Cyan);
 		else
-			circle.setFillColor(Color::White);
+			circle.setFillColor(Color::Transparent);
 		mainWindow.draw(circle);
 		if(v.getType() == Verteks::CONTAIN_RED){
 			box.setColor(Color::Red);
@@ -1155,9 +1181,9 @@ void Game::draw(){
 
 	mainWindow.draw(slowText);
 	mainWindow.draw(fastText);
-	text.setColor(Color::Red);
-	text.setString(std::to_string(maxTime - elapsedTimeUnit));
-	text.setPosition(880, 20);
+	text.setColor(Color::White);
+	text.setString("time : " + std::to_string(maxTime - elapsedTimeUnit));
+	text.setPosition(850, 20);
 	mainWindow.draw(text);
 	text.setColor(Color::Black);
 	if(showSelection)
@@ -1299,7 +1325,7 @@ void Game::prepare(){
 	hoverSlider = false;
 	toolTime = false;
 	requestDraw = false;
-	showSelection;
+	showSelection = false;
 	toolClicked;
 	dragVerteks = -1;
 	hoverVerteks = -1;

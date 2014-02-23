@@ -127,6 +127,10 @@ private:
 	Texture characterTexture;
 	Texture sideBarTexture;
 	Texture sliderTexture;
+	Texture playBGTexture;
+	Texture playButtonTexture;
+	RectangleShape playBG;
+	RectangleShape playButton;
 	CircleShape circle;
 	RectangleShape selectionRect;
 	Vertex *slideBar;

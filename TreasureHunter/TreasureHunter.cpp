@@ -32,7 +32,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	luffyButton.loadFromFile("Bitmap/luffybw.jpg");
 	luffyButton2.loadFromFile("Bitmap/luffy.jpg");
 	luffyButtonShape.setSize(sf::Vector2f(300,500));
-	luffyButtonShape.setPosition(662,390);
+	luffyButtonShape.setPosition(1085,435);
 	luffyButtonShape.setOrigin(150, 250);
 	luffyButtonShape.setTexture(&luffyButton);
 
@@ -46,7 +46,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	zoroButton.loadFromFile("Bitmap/zorobw.jpg");
 	zoroButton2.loadFromFile("Bitmap/zoro.jpg");
 	zoroButtonShape.setSize(sf::Vector2f(300,500));
-	zoroButtonShape.setPosition(1085,435);
+	zoroButtonShape.setPosition(662,390);
 	zoroButtonShape.setOrigin(150,250);
 	zoroButtonShape.setTexture(&zoroButton);
 	
@@ -68,12 +68,13 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	#pragma region
 
-	sf::Texture frontBG, menuBG, AImodeBG;
+	sf::Texture frontBG, menuBG, AImodeBG, AImodeBGLevel;
 	sf::RectangleShape frontBGShape,AImodeBGShape;
 	frontBG.loadFromFile("Bitmap/frontBG.jpg");
 	menuBG.loadFromFile("Bitmap/menuBG.jpg");
 	frontBGShape.setSize(sf::Vector2f(1366,768));
 	AImodeBG.loadFromFile("Bitmap/AImodeBG.jpg");
+	AImodeBGLevel.loadFromFile("Bitmap/AImodeBGLevel.jpg");
 
 	#pragma endregion Background
 
@@ -82,7 +83,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	sf::Texture AImodeButton,pvpButton, vsAIButton, watchBot;
 	sf::RectangleShape pvpButtonShape, watchBotShape, vsAIButtonShape;
 	vsAIButton.loadFromFile("Bitmap/AIMode.png");
-	vsAIButtonShape.setPosition(294,290);
+	vsAIButtonShape.setPosition(294,360);
 	vsAIButtonShape.setSize(sf::Vector2f(500,647));
 	vsAIButtonShape.setOrigin(250,324);
 	vsAIButtonShape.setTexture(&vsAIButton);
@@ -91,10 +92,6 @@ int _tmain(int argc, _TCHAR* argv[])
 	pvpButtonShape.setPosition(1070,340);
 	pvpButtonShape.setOrigin(250, 324);
 	pvpButtonShape.setTexture(&pvpButton);
-	/*watchBot.loadFromFile("Bitmap/watchBot.png");
-	watchBotShape.setSize(sf::Vector2f(261,208));
-	watchBotShape.setPosition(138,540);
-	watchBotShape.setTexture(&watchBot);*/
 	#pragma endregion Menu Item
 
 	#pragma region
@@ -207,7 +204,10 @@ int _tmain(int argc, _TCHAR* argv[])
 		}
 		if(Game::gameState == Game::GameState::AIMODE){
 			#pragma region
-			frontBGShape.setTexture(&AImodeBG);
+			if(Game::gameMode == Game::PLAYER_MODE)
+				frontBGShape.setTexture(&AImodeBGLevel);
+			else
+				frontBGShape.setTexture(&AImodeBG);
 			while(Game::mainWindow.pollEvent(event123)){
 				if(event123.mouseMove.x != 0 && event123.mouseMove.y != 0){
 					lastMouseX = (float)event123.mouseMove.x;
@@ -281,7 +281,6 @@ int _tmain(int argc, _TCHAR* argv[])
 			backButtonShape.setPosition(660,680);
 			Game::mainWindow.draw(pvpButtonShape);
 			Game::mainWindow.draw(backButtonShape);
-			//Game::mainWindow.draw(watchBotShape);
 			Game::mainWindow.draw(vsAIButtonShape);
 			
 		}
