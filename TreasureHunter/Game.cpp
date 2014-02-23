@@ -216,7 +216,6 @@ void Game::update(int elapsedTime){
 		//if(player1.colliBound.contains(verteks[player1.destVerteks].centerX, verteks[player1.destVerteks].centerY)){
 		if(player1.timeToGo <=0){
 			player1.setCenter(verteks[player1.destVerteks].centerX, verteks[player1.destVerteks].centerY);
-			cout << verteks[player1.destVerteks].time << endl;
 			if(!player1.bukaPeti){
 				if(verteks[player1.destVerteks].getType() == Verteks::CONTAIN_GREEN){
 					if(player1.nTools1x > 0){
@@ -253,7 +252,7 @@ void Game::update(int elapsedTime){
 				player1.delayTime --;
 				delayCounter = 0;
 			}
-			if(player1.delayTime <= 0 && jalan < nVerteks-1){
+			if(player1.delayTime <= 0 && jalan < solIdx-1){
 				jalan++;
 				player1.destVerteks = verteks[solution[jalan]].getNum() - 1;
 				player1.curVerteks = verteks[solution[jalan-1]].getNum() - 1;
@@ -371,7 +370,7 @@ void Game::update(int elapsedTime){
 			}
 			draw();
 			mainWindow.display();
-	}
+		}
 	}
 }
 
@@ -442,11 +441,11 @@ void Game::solve1(){
 		solIdx++;
 	}
 	for(int i=0; i<solIdx; i++){
-		if(verteks[i].type == Verteks::CONTAIN_RED){
+		if(verteks[solution[i]].type == Verteks::CONTAIN_RED){
 			solutionTools[nTools] = Tool::TYPE_4X;
 			nTools++;
 		}
-		else if(verteks[i].type == Verteks::CONTAIN_YELLOW){
+		else if(verteks[solution[i]].type == Verteks::CONTAIN_YELLOW){
 			solutionTools[nTools] = Tool::TYPE_2X;
 			nTools++;
 		}
@@ -465,11 +464,460 @@ void Game::solve1(){
 }
 
 void Game::solve2(){
+	int in, i, j, k, point;
+	int coins, ppg,playerPosition, minScore;
+	int waktu = 0, jaraktempuh = 0,idxL, idx, alt;
+	int MinRat, maxCoin, minLength;
+	bool NotAllVisited, duplicate;
+	char write;
+	double rat, minRat;
+	// modal
+	coins = player1.coins;
+	solIdx = 0; 
+	// given
+	
+	playerPosition = player1.curVerteks;  //posisi player -1 (verteks mulai dari 0)
+	ppg = playerPosition;
+	idxL = playerPosition;
+	int *SPC, *SPP, *LasJal, *simpul;
+	double *SPR;
+	bool *VisVer;
+	SPC = new int[nVerteks];
+	SPP = new int[nVerteks];
+	LasJal = new int[nVerteks];
+	simpul = new int[nVerteks];
+	SPR = new double[nVerteks];
+	VisVer = new bool[nVerteks];
+	solution[solIdx] = idxL;
+	solIdx++;
+	int **jalanCoin, **jalanRatio, **jalanPath;
+	double **lengthsRat;
+	jalanCoin = new int*[nVerteks];
+	jalanRatio = new int*[nVerteks];
+	jalanPath = new int*[nVerteks];
+	lengthsRat = new double*[nVerteks];
+	for(int i=0; i<nVerteks; i++){
+		switch(verteks[i].type){
+		case Verteks::CONTAIN_RED:
+			simpul[i] = 2;
+			break;
+		case Verteks::CONTAIN_YELLOW:
+			simpul[i] = 1;
+			break;
+		case Verteks::CONTAIN_GREEN:
+			simpul[i] = 0;
+			break;
+		default:
+			simpul[i] = -1;
+			break;
+		}
+	}
+	for(int i=0;i<nVerteks;i++){
+		lengthsRat[i] = new double[nVerteks];
+		for(int j=0;j<nVerteks;j++){
+			lengthsRat[i][j] = verteks[i].lengths[j];
+		}
+	}
+	for(i = 0; i < nVerteks; i++){
+		jalanCoin[i] = new int[nVerteks];
+		for(j = 0; j < nVerteks;j++){
+			if(j == 0){
+				jalanCoin[i][j] = playerPosition + 1;
+			}
+			else {
+				jalanCoin[i][j] = 0;
+			}
+		}					
+	}
+	for (i = 0; i < nVerteks; i++){
+		SPC[i] = -999999999;
+		VisVer[i] = false;
+	}
+	SPC[playerPosition] = 0;
+	LasJal[playerPosition] = 0;
+	NotAllVisited = true;
+	while(NotAllVisited){
+		maxCoin = -99999;
+		idxL = -1;
+		VisVer[playerPosition] = true;
+		for(k = 0; k < nVerteks; k++){
+			duplicate = false;
+			if (k != playerPosition){
+				rat = simpul[k];
+				if(maxCoin < simpul[k] && !VisVer[k] && verteks[playerPosition].lengths[k] != -99){
+					maxCoin = simpul[k];
+					idxL = k;
+				}
+				if(SPC[k] < SPC[playerPosition] + simpul[k]){
+					for(i = 0; i < LasJal[playerPosition] + 1; i++){
+						if(i == LasJal[playerPosition]){
+							
+							for(j = 0; j < LasJal[playerPosition]; j++){
+								if(k+1 == jalanCoin[k][j]){
+									duplicate = true;
+								}
+							}
+							if(!duplicate){
+								jalanCoin[k][i+1] = k+1;
+							}
+						}
+						jalanCoin[k][i] = jalanCoin[playerPosition][i];
+					}
+					if(!duplicate){
+						SPC[k] = SPC[playerPosition] + simpul[k];
+						LasJal[k] = LasJal[playerPosition] + 1;
+					}
+				}
+			}
+		}
+		playerPosition = idxL;
+		NotAllVisited = false;
+		for (k = 0; k < nVerteks; k++){
+			if(!VisVer[k]){
+				NotAllVisited = true;
+			}
+		}
+	}
+	
+	playerPosition = ppg;
+	for(i = 0; i < nVerteks; i++){
+		jalanPath[i] = new int[nVerteks];
+		for(j = 0; j < nVerteks;j++){
+			if(j == 0){
+				jalanPath[i][j] = playerPosition + 1;
+			}
+			else {
+				jalanPath[i][j] = 0;
+			}
+		}					
+	}
+	for(i = 0; i < nVerteks; i++){
+		LasJal[i] = 0;
+	}
+	for (i = 0; i < nVerteks; i++){
+		SPP[i] = 999999999;
+		VisVer[i] = false;
+	}
+	SPP[playerPosition] = 0;
+	LasJal[playerPosition] = 0;
+	NotAllVisited = true;
+	while(NotAllVisited){
+		VisVer[playerPosition] = true;
+		minLength = 99999;
+		idxL = -1;
+		for(k = 0; k < nVerteks; k++){
+			if (k != playerPosition && verteks[playerPosition].lengths[k] != -99){
+				if(minLength > verteks[playerPosition].lengths[k] && !VisVer[k]){
+					minLength = verteks[playerPosition].lengths[k];
+					idxL = k;
+				}
+				if(SPP[k] > SPP[playerPosition] + verteks[playerPosition].lengths[k]){
+					SPP[k] = SPP[playerPosition] + verteks[playerPosition].lengths[k];
+					for(i = 0; i < LasJal[playerPosition] + 1; i++){
+						if(i == LasJal[playerPosition]){
+							jalanPath[k][i+1] = k + 1;
+						}
+						jalanPath[k][i] = jalanPath[playerPosition][i];
+					}
+					LasJal[k] = LasJal[playerPosition] + 1;
+				}
+			}
+		}
+		if(idxL == -1){
+			break;
+		}
+		playerPosition = idxL;
+		NotAllVisited = false;
+		for (k = 0; k < nVerteks; k++){
+			if(!VisVer[k]){
+				NotAllVisited = true;
+			}
+		}
+	}
 
+	playerPosition = ppg;
+	for(i = 0; i < nVerteks; i++){
+		jalanRatio[i] = new int[nVerteks];
+		for(j = 0; j < nVerteks;j++){
+			if(j == 0){
+				jalanRatio[i][j] = playerPosition + 1;
+			}
+			else {
+				jalanRatio[i][j] = 0;
+			}
+		}					
+	}
+	for (i = 0; i < nVerteks; i++){
+		SPR[i] = -999999999;
+		VisVer[i] = false;
+	}
+	SPR[playerPosition] = 0;
+	for(i = 0; i < nVerteks; i++){
+		LasJal[i] = 0;
+	}
+	
+	NotAllVisited = true;
+	while(NotAllVisited){
+		minRat = 99999;
+		idxL = -1;
+		VisVer[playerPosition] = true;
+		for(k = 0; k < nVerteks; k++){
+			duplicate = false;
+			if (simpul[k] == 0){
+				rat = 0;
+			}
+			else 
+				rat = (double)(lengthsRat[playerPosition][k] / simpul[k]);
+			if (k != playerPosition  && lengthsRat[playerPosition][k] != -99){
+				if(minRat > rat && !VisVer[k]){
+					minRat = rat;
+					idxL = k;
+				}
+				if(SPR[k] < SPR[playerPosition] + rat){
+					for(i = 0; i < LasJal[playerPosition] + 1; i++){
+						if(i == LasJal[playerPosition]){
+							for(j = 0; j < LasJal[playerPosition]; j++){
+								if(k+1 == jalanRatio[k][j]){
+									duplicate = true;
+								}
+							}
+							if(!duplicate){
+								jalanRatio[k][i+1] = k+1;
+							}
+						}
+						jalanRatio[k][i] = jalanRatio[playerPosition][i];
+					}
+					if(!duplicate){
+						SPR[k] = SPR[playerPosition] + rat;
+						LasJal[k] = LasJal[playerPosition] + 1;
+					}
+				}
+			}
+		}
+		if (idxL == -1){
+			break;
+		}
+		playerPosition = idxL;
+		NotAllVisited = false;
+		for (k = 0; k < nVerteks; k++){
+			if(!VisVer[k]){
+				NotAllVisited = true;
+			}
+		}
+	}
+	for(i = 0; i < nVerteks; i++){
+		//cout << SPC[i] << endl;
+		for(j = 0; j < nVerteks; j++){
+			//cout << jalanCoin[i][j];
+		}
+		//cout << endl;
+	}
+	//cout << endl;
+	for(i = 0; i < nVerteks; i++){
+		cout << SPP[i] << endl;
+		for(j = 0; j < nVerteks; j++){
+			//cout << jalanPath[i][j];
+		}
+		//cout << endl;
+	}
+	//cout << endl;
+	for(i = 0; i < nVerteks; i++){
+		//cout << SPR[i] << endl;
+		for(j = 0; j < nVerteks; j++){
+			//cout << jalanRatio[i][j];
+		}
+		//cout << endl;
+	}
+	int mr, mp, mc, pc, pp, pr, choosenPath, passedPath, curCoin;
+	mr = -9999999; mp = 9999999; mc = -9999999;
+	for(i = 0; i < nVerteks; i++){
+		if (mr < SPR[i]) {mr = SPR[i];pr = i;}
+		if (mp > SPP[i] && SPP[i] != 0) {mp = SPP[i];pp = i;}
+		if (mc < SPC[i]) {mc = SPC[i];pc = i;}
+	}
+	//cout << endl << pc << pp << pr << endl;
+	curCoin = coins;
+	passedPath = 0;
+	choosenPath = pr;
+	while(passedPath < nVerteks && curCoin > 0 && jalanCoin[choosenPath][passedPath] != 0){
+		if(curCoin == 2){
+			for(i = 0; i < nVerteks; i++){
+				duplicate = false;
+				for(j = 0; j < passedPath; j++){
+					if (i == jalanCoin[choosenPath][j] - 1){
+						duplicate == true;
+					}
+				}
+				if(!duplicate && verteks[jalanCoin[choosenPath][passedPath]-1].lengths[i] != -99 && simpul[i] == 1){
+					//cout << "masuk5" << i << endl;
+					jalanCoin[choosenPath][passedPath] = i + 1;
+				}
+			}
+		}
+		if(simpul[jalanCoin[choosenPath][passedPath]-1] == 2){
+			curCoin -= 3;
+		}
+		else if(simpul[jalanCoin[choosenPath][passedPath]-1] == 1){
+			curCoin -= 2;
+		}
+		passedPath ++;
+		//cout << curCoin << endl;
+	}
+	//cout << endl;
+	if (curCoin < 0){
+		passedPath--;
+	}
+	solIdx = passedPath - 1;
+	for(i = 0; i < passedPath-1; i++){
+		if (choosenPath == pr){
+			cout << jalanRatio[choosenPath][i]<<"a" <<endl;
+			solution[i] = jalanRatio[choosenPath][i]-1;
+		}
+		else{
+			cout << jalanCoin[choosenPath][i]<<"b" <<endl;	
+			solution[i] = jalanCoin[choosenPath][i]-1;
+		}
+	}
+	for(int i=0; i<solIdx; i++){
+		if(verteks[solution[i]].type == Verteks::CONTAIN_RED){
+			solutionTools[nTools] = Tool::TYPE_4X;
+			nTools++;
+		}
+		else if(verteks[solution[i]].type == Verteks::CONTAIN_YELLOW){
+			solutionTools[nTools] = Tool::TYPE_2X;
+			nTools++;
+		}
+		cout << solution[i] +1;
+	}
+	for(int i=0; i<nTools;i++){
+		if(solutionTools[i] == Tool::TYPE_2X)
+			player1.buyTool(Tool::TYPE_2X);
+		else if(solutionTools[i] == Tool::TYPE_4X)
+			player1.buyTool(Tool::TYPE_4X);
+	}
+	cout << endl;
+	player1.destVerteks = solution[1];
+	player1.curVerteks = solution[0];
+	player1.timeToGo = verteks[player1.curVerteks].lengths[player1.destVerteks];
 }
 
 void Game::solve3(){
+	int in, i, j, point;
+	int minScore;
+	int waktu = 0, jaraktempuh = 0,idxL, idxR, idx;
+	int MinRat, rat, minLength, playerPosition, coins;
+	char write;
+	// modal
+	
+	coins = player1.coins;
+	playerPosition = player1.curVerteks;
+	idxL = playerPosition;
+	solution[solIdx] = idxL;
+	solIdx++;
 
+	i = 1;
+	while (i < nVerteks){
+		j = 0;
+		minLength = 9999;
+		MinRat = 9999;
+		idxL = -1;
+		idxR = -1;
+		while(j<nVerteks){
+			if((j!=playerPosition) && (verteks[playerPosition].lengths[j] < minLength) && (verteks[playerPosition].lengths[j]!=-99)){
+				bool duplicate = false;
+				for(int k=0; k<solIdx; k++){
+					if(j == solution[k]){
+						duplicate = true;
+					}
+				}
+				if(!duplicate){
+					minLength = verteks[playerPosition].lengths[j];
+					idxL = j;
+				}
+			}
+			switch(verteks[j].type){
+			case Verteks::CONTAIN_RED:
+				point = 2;
+				break;
+			case Verteks::CONTAIN_YELLOW:
+				point = 1;
+				break;
+			default:
+				point = 999;
+			}
+
+			if(j!=playerPosition && (point!=999) && (verteks[playerPosition].lengths[j]!=-99)){
+				rat = (float)verteks[playerPosition].lengths[j]/(float)point;
+				if(rat < MinRat){
+					bool duplicate = false;
+					for(int k=0; k<solIdx; k++){
+						if(j == solution[k]){
+							duplicate = true;
+						}
+					}
+					if(!duplicate){
+						MinRat = rat;
+						idxR = j;
+					}
+				}
+			}
+			j++;
+		}
+		if(idxR!=-1)
+			idx = idxR;
+		else
+			idx = idxL;
+		if (verteks[playerPosition].lengths[idx] < 9999999){
+			waktu += verteks[playerPosition].lengths[idx];
+		}
+		if (waktu > maxTime){
+			break;
+		}
+		playerPosition = idx;
+		solution[solIdx] = idx;
+		switch(verteks[idx].type){
+		case Verteks::CONTAIN_RED:
+				if (coins >= 3){
+					waktu += 1;
+					coins += 2;
+					write = 'M';
+				}
+				break;
+		case Verteks::CONTAIN_YELLOW:
+				if (coins >= 2){
+					waktu += 2;
+					coins += 1;
+					write = 'K';
+				}
+				break;
+			default:
+				break;
+		}
+		solIdx++;
+		i++;
+		cout << idx + 1 << "," << write << endl;
+	}
+	cout << endl << waktu << " " << coins << endl;
+	for(int i=0; i<solIdx; i++){
+		if(verteks[solution[i]].type == Verteks::CONTAIN_RED){
+			solutionTools[nTools] = Tool::TYPE_4X;
+			nTools++;
+		}
+		else if(verteks[solution[i]].type == Verteks::CONTAIN_YELLOW){
+			solutionTools[nTools] = Tool::TYPE_2X;
+			nTools++;
+		}
+		
+	}
+	for(int i=0; i<nTools;i++){
+		if(solutionTools[i] == Tool::TYPE_2X)
+			player1.buyTool(Tool::TYPE_2X);
+		else if(solutionTools[i] == Tool::TYPE_4X)
+			player1.buyTool(Tool::TYPE_4X);
+	}
+	player1.destVerteks = solution[1];
+	player1.curVerteks = solution[0];
+	player1.timeToGo = verteks[player1.curVerteks].lengths[player1.destVerteks];
 }
 
 void Game::init(){
